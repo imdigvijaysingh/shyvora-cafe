@@ -62,6 +62,24 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`☕ Brew & Bloom Cafe Server running on port ${PORT}`);
+
+  // Auto Keep-Alive for Render / Cloud hosting
+  // Render free tier spins down after 15 mins of inactivity.
+  const externalUrl = process.env.RENDER_EXTERNAL_URL || process.env.SERVER_URL;
+  if (externalUrl) {
+    const PING_INTERVAL_MS = 5 * 60 * 1000; // Ping every 5 minutes
+    const healthUrl = `${externalUrl.replace(/\/+$/, '')}/api/health`;
+    console.log(`📡 Auto Keep-Alive enabled for: ${healthUrl} (every 5 mins)`);
+
+    setInterval(async () => {
+      try {
+        await fetch(healthUrl);
+        console.log(`[Keep-Alive] Pinged ${healthUrl} at ${new Date().toLocaleTimeString()}`);
+      } catch (err) {
+        console.warn(`[Keep-Alive] Ping warning: ${err.message}`);
+      }
+    }, PING_INTERVAL_MS);
+  }
 });
 
 export default app;

@@ -1,0 +1,18 @@
+name: Keep Backend Server Alive
+
+on:
+  schedule:
+    # Runs every 5 minutes (standard cron syntax)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend Health Endpoint
+        run: |
+          TARGET_URL="${{ secrets.BACKEND_URL || 'https://your-cafe-app.onrender.com' }}"
+          echo "Sending keep-alive ping to $TARGET_URL/api/health"
+          curl -s -f -m 20 "$TARGET_URL/api/health" || echo "Server may be waking up..."
+

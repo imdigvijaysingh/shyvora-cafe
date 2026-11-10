@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import TopBar from './components/TopBar';
@@ -32,6 +32,15 @@ const AccountSettings = lazy(() => import('./pages/Profile/AccountSettings'));
 const AppContent = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/index-admin');
+
+  // Passive background heartbeat to keep cloud server warm while tab is active
+  useEffect(() => {
+    const HEARTBEAT_INTERVAL = 4 * 60 * 1000;
+    const interval = setInterval(() => {
+      fetch('/api/health').catch(() => {});
+    }, HEARTBEAT_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="font-sans antialiased text-text-primary bg-cafe-bg min-h-screen flex flex-col">
