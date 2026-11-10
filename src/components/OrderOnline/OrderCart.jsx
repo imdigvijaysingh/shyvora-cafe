@@ -12,7 +12,15 @@ const CartItem = ({ item, updateQuantity, removeFromCart, formatPrice }) => (
     >
        <X size={14} />
     </button>
-    <img src={item.image} alt={item.name} className="w-14 h-14 rounded-full object-cover shadow-sm" />
+    <img 
+      src={item.image} 
+      alt={item.name} 
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = '/images/menu_cappuccino_1784782504483.webp';
+      }}
+      className="w-14 h-14 rounded-full object-cover shadow-sm" 
+    />
     <div className="flex-1 pr-6">
       <div className="flex justify-between items-start mb-2">
          <h4 className="font-semibold text-cafe-dark text-sm">{item.name}</h4>

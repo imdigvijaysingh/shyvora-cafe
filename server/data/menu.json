@@ -8,7 +8,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": true,
-    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+    "image": "/images/menu_cappuccino_1784782504483.webp"
   },
   {
     "id": "c2",
@@ -19,7 +19,7 @@
     "type": "Iced",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+    "image": "/images/menu_cappuccino_1784782504483.webp"
   },
   {
     "id": "c3",
@@ -30,7 +30,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+    "image": "/images/menu_cappuccino_1784782504483.webp"
   },
   {
     "id": "c4",
@@ -41,7 +41,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+    "image": "/images/menu_cappuccino_1784782504483.webp"
   },
   {
     "id": "b1",
@@ -52,7 +52,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": true,
-    "image": "/src/assets/images/menu_toast_1784782514646.webp"
+    "image": "/images/menu_toast_1784782514646.webp"
   },
   {
     "id": "b2",
@@ -63,7 +63,7 @@
     "type": "Iced",
     "isVeg": true,
     "isFeatured": true,
-    "image": "/src/assets/images/menu_iced_latte_1784782557336.webp"
+    "image": "/images/menu_iced_latte_1784782557336.webp"
   },
   {
     "id": "s1",
@@ -74,7 +74,7 @@
     "type": "Hot",
     "isVeg": false,
     "isFeatured": false,
-    "image": "/src/assets/images/cta_croissant_1784782576636.webp"
+    "image": "/images/cta_croissant_1784782576636.webp"
   },
   {
     "id": "p1",
@@ -85,7 +85,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+    "image": "/images/menu_cappuccino_1784782504483.webp"
   },
   {
     "id": "d1",
@@ -96,7 +96,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_cheesecake_1784782526474.webp"
+    "image": "/images/menu_cheesecake_1784782526474.webp"
   },
   {
     "id": "d2",
@@ -107,7 +107,7 @@
     "type": "Hot",
     "isVeg": true,
     "isFeatured": true,
-    "image": "/src/assets/images/menu_cheesecake_1784782526474.webp"
+    "image": "/images/menu_cheesecake_1784782526474.webp"
   },
   {
     "id": "bev1",
@@ -118,7 +118,7 @@
     "type": "Iced",
     "isVeg": true,
     "isFeatured": false,
-    "image": "/src/assets/images/menu_iced_latte_1784782557336.webp"
+    "image": "/images/menu_iced_latte_1784782557336.webp"
   }
 ]
 

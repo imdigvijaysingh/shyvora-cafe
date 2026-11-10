@@ -5,14 +5,21 @@ const CafeDataContext = createContext();
 
 const normalizeMenuItems = (items) => {
   if (!Array.isArray(items)) return [];
-  return items.map(item => ({
-    ...item,
-    name: item.name || item.title || 'Cafe Item',
-    title: item.title || item.name || 'Cafe Item',
-    category: item.category || 'Coffee',
-    description: item.description || '',
-    price: item.price !== undefined ? parseFloat(item.price) : 0
-  }));
+  return items.map(item => {
+    let img = item.image || item.imageUrl || '';
+    if (typeof img === 'string' && img.startsWith('/src/assets/images/')) {
+      img = img.replace('/src/assets/images/', '/images/');
+    }
+    return {
+      ...item,
+      name: item.name || item.title || 'Cafe Item',
+      title: item.title || item.name || 'Cafe Item',
+      category: item.category || 'Coffee',
+      description: item.description || '',
+      price: item.price !== undefined ? parseFloat(item.price) : 0,
+      image: img || '/images/menu_cappuccino_1784782504483.webp'
+    };
+  });
 };
 
 const DEFAULT_SETTINGS = {
@@ -221,7 +228,13 @@ export const CafeDataProvider = ({ children }) => {
       const galleryRes = await fetch(`${API_URL}/api/gallery`).catch(() => null);
       const galleryJson = await safeParseJson(galleryRes);
       if (galleryJson && galleryJson.success && Array.isArray(galleryJson.data)) {
-        setGalleryPhotos(galleryJson.data);
+        const normalizedGallery = galleryJson.data.map(g => ({
+          ...g,
+          imageUrl: typeof g.imageUrl === 'string' && g.imageUrl.startsWith('/src/assets/images/')
+            ? g.imageUrl.replace('/src/assets/images/', '/images/')
+            : (g.imageUrl || '/images/gallery_interior_1784916424533.webp')
+        }));
+        setGalleryPhotos(normalizedGallery);
       }
 
       // Fetch deals

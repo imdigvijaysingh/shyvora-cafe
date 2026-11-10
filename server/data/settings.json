@@ -24,7 +24,7 @@
     "bannerColor": "#991b1b"
   },
   "hero": {
-    "videoUrl": "/src/assets/videos/home_hero.webm",
+    "videoUrl": "/videos/home_hero.webm",
     "posterUrl": "/hero_poster.webp",
     "tagline": "Good Coffee, Good Mood",
     "titleLine1": "Savor Moments,",

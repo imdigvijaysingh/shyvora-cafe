@@ -3,42 +3,42 @@
     "id": "g1",
     "title": "Warm Wooden Interior",
     "category": "Ambience",
-    "imageUrl": "/src/assets/images/gallery_interior_1784916424533.webp",
+    "imageUrl": "/images/gallery_interior_1784916424533.webp",
     "uploadedAt": "2026-11-01T10:00:00.000Z"
   },
   {
     "id": "g2",
     "title": "Artisanal Espresso Counter",
     "category": "Barista",
-    "imageUrl": "/src/assets/images/gallery_cashier_1784916437080.webp",
+    "imageUrl": "/images/gallery_cashier_1784916437080.webp",
     "uploadedAt": "2026-11-02T10:00:00.000Z"
   },
   {
     "id": "g3",
     "title": "Fresh Kitchen & Bakery",
     "category": "Kitchen",
-    "imageUrl": "/src/assets/images/gallery_kitchen_1784916448766.webp",
+    "imageUrl": "/images/gallery_kitchen_1784916448766.webp",
     "uploadedAt": "2026-11-03T10:00:00.000Z"
   },
   {
     "id": "g4",
     "title": "Cozy Community Vibes",
     "category": "People",
-    "imageUrl": "/src/assets/images/gallery_customers_1784916459404.webp",
+    "imageUrl": "/images/gallery_customers_1784916459404.webp",
     "uploadedAt": "2026-11-04T10:00:00.000Z"
   },
   {
     "id": "g5",
     "title": "Intimate Dining Tables",
     "category": "Ambience",
-    "imageUrl": "/src/assets/images/cta_table_1784782567034.webp",
+    "imageUrl": "/images/cta_table_1784782567034.webp",
     "uploadedAt": "2026-11-05T10:00:00.000Z"
   },
   {
     "id": "g6",
     "title": "Handcrafted Latte Art",
     "category": "Coffee",
-    "imageUrl": "/src/assets/images/menu_cappuccino_1784782504483.webp",
+    "imageUrl": "/images/menu_cappuccino_1784782504483.webp",
     "uploadedAt": "2026-11-06T10:00:00.000Z"
   }
 ]

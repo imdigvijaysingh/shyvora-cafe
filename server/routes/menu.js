@@ -24,7 +24,7 @@ router.post('/', authenticateAdmin, uploadImage.single('image'), async (req, res
     }
 
     const menu = (await readJson('menu.json')) || [];
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : (imageUrl || '/src/assets/images/menu_cappuccino_1784782504483.webp');
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : (imageUrl || '/images/menu_cappuccino_1784782504483.webp');
 
     const newItem = {
       id: 'item_' + Date.now(),

@@ -662,6 +662,10 @@ const Checkout = () => {
                         <img 
                           src={item.image} 
                           alt={item.name} 
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/images/menu_cappuccino_1784782504483.webp';
+                          }}
                           className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0" 
                         />
                       )}

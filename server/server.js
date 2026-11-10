@@ -27,6 +27,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static uploads directory for media
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Static images and videos from public folder
+const publicDir = path.join(__dirname, '..', 'public');
+app.use('/images', express.static(path.join(publicDir, 'images')));
+app.use('/videos', express.static(path.join(publicDir, 'videos')));
+app.use(express.static(publicDir));
+
+// Fallback static route for any legacy /src/assets paths
+const srcAssetsDir = path.join(__dirname, '..', 'src', 'assets');
+app.use('/src/assets', express.static(srcAssetsDir));
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
@@ -45,8 +55,16 @@ const clientDist = path.join(__dirname, '..', 'dist');
 app.use(express.static(clientDist));
 
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-    return next();
+  // Never return index.html for missing images, assets, or API calls
+  if (
+    req.path.startsWith('/api') || 
+    req.path.startsWith('/uploads') ||
+    req.path.startsWith('/src/assets') ||
+    req.path.startsWith('/images') ||
+    req.path.startsWith('/videos') ||
+    req.path.startsWith('/assets')
+  ) {
+    return res.status(404).send('Not found');
   }
   res.sendFile(path.join(clientDist, 'index.html'));
 });

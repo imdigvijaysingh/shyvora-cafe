@@ -30,6 +30,10 @@ const OrderItemCard = ({ image, title, description, price }) => {
         <img loading="lazy" 
           src={image} 
           alt={title} 
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/images/menu_cappuccino_1784782504483.webp';
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>

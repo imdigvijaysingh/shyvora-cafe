@@ -33,6 +33,10 @@ const MenuItem = ({ image, name, description, price }) => {
           alt={name} 
           loading="lazy"
           decoding="async"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/images/menu_cappuccino_1784782504483.webp';
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
