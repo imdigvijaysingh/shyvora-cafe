@@ -18,7 +18,7 @@ const WhyBookSidebar = () => {
   return (
     <div className="w-full lg:w-[350px] flex-shrink-0">
       <div className="mb-10">
-        <h3 className="font-serif text-xl text-cafe-dark tracking-widest uppercase mb-6 text-center md:text-left">WHY BOOK WITH US?</h3>
+        <h3 className="font-serif text-[clamp(1.05rem,4.5vw,1.25rem)] text-cafe-dark tracking-widest uppercase mb-6 text-center md:text-left whitespace-nowrap">WHY BOOK WITH US?</h3>
         
         <div className="text-cafe-accent mb-10 flex items-center justify-center md:justify-start">
            <div className="h-[1px] w-8 bg-cafe-accent/30 mr-2"></div>

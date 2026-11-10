@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { searchMenu } from '../data/menuData';
 import OrderItemCard from '../components/OrderOnline/OrderItemCard';
+import { useCurrency } from '../context/CurrencyContext';
 import { LayoutGrid, List, SlidersHorizontal, ChevronDown, X } from 'lucide-react';
 
 const SearchFilters = ({ filters, setFilters, onClose, isOpen }) => {
+  const { formatPrice } = useCurrency();
   return (
     <div className={`fixed inset-0 z-50 md:z-0 md:static md:block md:w-64 flex-shrink-0 transition-transform transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 bg-black/50 md:bg-transparent`}>
       <div className="bg-[#F8F5F0] h-full md:h-auto w-4/5 md:w-full md:rounded-2xl border-r md:border border-[#EBE3D5] p-6 overflow-y-auto">
@@ -50,8 +52,8 @@ const SearchFilters = ({ filters, setFilters, onClose, isOpen }) => {
         <div className="mb-8 border-t border-[#EBE3D5] pt-6">
           <h4 className="font-semibold text-cafe-dark text-xs uppercase tracking-widest mb-4">PRICE</h4>
           <div className="flex justify-between text-xs text-text-secondary mb-2">
-            <span>₹0</span>
-            <span>₹500</span>
+            <span>{formatPrice(0)}</span>
+            <span>{formatPrice(500)}</span>
           </div>
           {/* Mock Slider */}
           <div className="h-1 bg-[#EBE3D5] w-full rounded-full relative mb-4">
@@ -79,8 +81,24 @@ const Search = () => {
   const results = searchMenu(query);
 
   return (
-    <section className="py-12 px-4 md:px-8 bg-cafe-bg min-h-screen">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 items-start">
+    <div>
+      {/* Search Hero Banner */}
+      <section className="relative bg-cafe-darker text-white py-8 md:py-12 px-4 md:px-8 overflow-hidden text-center flex flex-col items-center justify-center border-b border-white/10">
+        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+          <span className="inline-block px-3.5 py-1 border border-white/20 text-cafe-accent font-medium tracking-[0.25em] text-xs uppercase mb-2 backdrop-blur-sm">
+            MENU SEARCH
+          </span>
+          <h1 className="font-serif text-[clamp(1.2rem,5vw,2.5rem)] text-white leading-tight whitespace-nowrap">
+            {query ? `Results for "${query}"` : 'Search Our Menu'}
+          </h1>
+          <p className="text-gray-300 text-xs sm:text-sm mt-2 font-light">
+            Find your favorite coffee, breakfast, and delicious cafe bites
+          </p>
+        </div>
+      </section>
+
+      <section className="py-6 sm:py-8 md:py-12 px-4 md:px-8 bg-cafe-bg min-h-screen">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 items-start">
          
          <SearchFilters 
             isOpen={isFiltersOpen} 
@@ -91,7 +109,7 @@ const Search = () => {
 
          {/* Main Content */}
          <div className="flex-1 w-full">
-            <h1 className="font-serif text-2xl md:text-3xl text-cafe-dark mb-8">
+            <h1 className="font-serif text-[clamp(1.15rem,5vw,2rem)] text-cafe-dark mb-8 whitespace-nowrap">
               Search results for "{query}"
             </h1>
             
@@ -131,6 +149,7 @@ const Search = () => {
          </div>
       </div>
     </section>
+    </div>
   );
 };
 

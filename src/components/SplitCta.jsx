@@ -1,18 +1,20 @@
 import React from 'react';
 import { Calendar, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import tableImg from '../assets/images/cta_table_1784782567034.png';
-import croissantImg from '../assets/images/cta_croissant_1784782576636.png';
+import tableImg from '../assets/images/cta_table_1784782567034.webp';
+import croissantImg from '../assets/images/cta_croissant_1784782576636.webp';
 
 const SplitCta = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 bg-cafe-bg">
+    <section className="py-6 sm:py-8 md:py-12 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-5 md:gap-8 bg-cafe-bg">
       
       {/* Left Block - Book a Table */}
-      <div className="flex-1 rounded-2xl overflow-hidden relative group h-[450px]">
-        <img loading="lazy" 
+      <div className="flex-1 rounded-2xl overflow-hidden relative group h-[380px] sm:h-[450px]">
+        <img 
+          loading="lazy" 
+          decoding="async"
           src={tableImg} 
           alt="Romantic Table Setting" 
           className="absolute inset-0 w-full h-full object-cover brightness-50 group-hover:scale-105 transition-transform duration-700"
@@ -21,7 +23,7 @@ const SplitCta = () => {
         
         <div className="relative h-full flex flex-col justify-end p-8 md:p-12 text-white">
           <p className="text-cafe-accent font-semibold tracking-widest text-xs mb-2 uppercase">BOOK A TABLE</p>
-          <h2 className="font-serif text-3xl md:text-4xl mb-6">Reserve your perfect spot</h2>
+          <h2 className="font-serif text-[clamp(1.15rem,5.2vw,2.25rem)] mb-4 md:mb-6 whitespace-nowrap">Reserve your perfect spot</h2>
           
           <ul className="space-y-3 mb-8">
             <li className="flex items-center gap-3 text-sm font-light text-gray-200">
@@ -46,10 +48,12 @@ const SplitCta = () => {
       </div>
 
       {/* Right Block - Pre-order */}
-      <div className="flex-1 rounded-2xl overflow-hidden relative bg-[#EFE9DF] h-[450px]">
+      <div className="flex-1 rounded-2xl overflow-hidden relative bg-[#EFE9DF] h-[380px] sm:h-[450px]">
         {/* Background Image decoration */}
         <div className="absolute -bottom-10 -right-10 w-3/4 h-3/4 opacity-90 z-0">
-           <img loading="lazy" 
+           <img 
+            loading="lazy" 
+            decoding="async"
             src={croissantImg} 
             alt="Coffee and Croissant" 
             className="w-full h-full object-cover rounded-full"
@@ -59,7 +63,7 @@ const SplitCta = () => {
 
         <div className="relative h-full flex flex-col justify-start p-8 md:p-12 z-10">
           <p className="text-cafe-accent font-semibold tracking-widest text-xs mb-2 uppercase">PRE-ORDER YOUR FAVES</p>
-          <h2 className="font-serif text-3xl md:text-4xl text-cafe-dark mb-6">Order ahead, skip the wait</h2>
+          <h2 className="font-serif text-[clamp(1.15rem,5.2vw,2.25rem)] text-cafe-dark mb-4 md:mb-6 whitespace-nowrap">Order ahead, skip the wait</h2>
           
           <ul className="space-y-3 mb-8 max-w-[60%]">
             <li className="flex items-center gap-3 text-sm text-text-primary font-medium">

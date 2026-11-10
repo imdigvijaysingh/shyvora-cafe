@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Clock, CheckCircle2, Timer } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const OrderItem = ({ id, date, items, total, status, bookingDate, arrivalTime }) => {
   const [timeLeft, setTimeLeft] = useState('');
+  const { formatPrice } = useCurrency();
   
   useEffect(() => {
     if (status !== 'Confirmed' || !bookingDate || !arrivalTime) return;
@@ -81,7 +83,7 @@ const OrderItem = ({ id, date, items, total, status, bookingDate, arrivalTime })
       )}
 
       <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-        <div className="text-sm text-text-secondary">Total: <span className="font-semibold text-cafe-dark text-base">₹{total}</span></div>
+        <div className="text-sm text-text-secondary">Total: <span className="font-semibold text-cafe-dark text-base">{formatPrice(total, true)}</span></div>
         <div className="flex gap-2">
           <button 
             onClick={() => setShowDetails(!showDetails)}

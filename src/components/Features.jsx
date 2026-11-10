@@ -17,8 +17,8 @@ const FeatureItem = ({ icon: Icon, title, description }) => (
 
 const Features = () => {
   return (
-    <section className="bg-cafe-bg-alt py-10 md:py-12 px-4 md:px-8 shadow-[0_4px_30px_rgba(0,0,0,0.03)] relative z-10">
-      <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-8 justify-items-center">
+    <section className="bg-cafe-bg-alt py-6 sm:py-8 md:py-10 px-4 md:px-8 shadow-[0_4px_30px_rgba(0,0,0,0.03)] relative z-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4 sm:gap-y-6 md:gap-8 justify-items-center">
         <FeatureItem 
           icon={CupSoda} 
           title="Premium Quality" 

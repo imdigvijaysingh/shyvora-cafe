@@ -18,7 +18,7 @@ const WhyChooseUs = () => {
     <section className="py-12 md:py-20 px-4 md:px-8 bg-cafe-bg">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
         <p className="text-cafe-accent font-semibold tracking-widest text-xs md:text-sm mb-2 uppercase">WHY CHOOSE US</p>
-        <h2 className="font-serif text-3xl md:text-4xl text-cafe-dark mb-8 md:mb-12">More than just a café</h2>
+        <h2 className="font-serif text-[clamp(1.25rem,5.5vw,2.25rem)] text-cafe-dark mb-6 md:mb-10 whitespace-nowrap">More than just a café</h2>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-4 w-full">
           <ReasonItem 

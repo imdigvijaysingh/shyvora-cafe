@@ -13,7 +13,7 @@ const ProfileLayout = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] py-12 px-4 md:px-8">
+    <div className="min-h-screen bg-[#FDFBF7] py-6 sm:py-8 md:py-10 px-4 md:px-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 items-start">
         
         {/* Sidebar */}

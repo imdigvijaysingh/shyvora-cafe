@@ -13,7 +13,7 @@ const OrderOnline = () => {
       <OrderHero />
       <CategoryFilter activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
       
-      <section className="py-12 px-4 md:px-8 bg-cafe-bg pb-24">
+      <section className="py-6 sm:py-8 md:py-12 px-4 md:px-8 bg-cafe-bg pb-12 sm:pb-16">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 lg:items-start">
            <OrderGrid activeCategory={activeCategory} />
            <OrderCart />

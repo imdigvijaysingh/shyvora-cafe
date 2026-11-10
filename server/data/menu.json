@@ -1,0 +1,124 @@
+[
+  {
+    "id": "c1",
+    "title": "Cappuccino",
+    "description": "Rich espresso with steamed milk foam.",
+    "price": 199,
+    "category": "Coffee",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": true,
+    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+  },
+  {
+    "id": "c2",
+    "title": "Iced Cappuccino",
+    "description": "Chilled cappuccino with a smooth & frothy finish.",
+    "price": 219,
+    "category": "Coffee",
+    "type": "Iced",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+  },
+  {
+    "id": "c3",
+    "title": "Hazelnut Cappuccino",
+    "description": "Cappuccino with a hint of hazelnut sweetness.",
+    "price": 239,
+    "category": "Coffee",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+  },
+  {
+    "id": "c4",
+    "title": "Caramel Cappuccino",
+    "description": "Creamy cappuccino topped with caramel drizzle.",
+    "price": 239,
+    "category": "Coffee",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+  },
+  {
+    "id": "b1",
+    "title": "Avocado Toast",
+    "description": "Fresh avocado, herbs & sourdough.",
+    "price": 249,
+    "category": "Breakfast",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": true,
+    "image": "/src/assets/images/menu_toast_1784782514646.webp"
+  },
+  {
+    "id": "b2",
+    "title": "Iced Caramel Latte",
+    "description": "Smooth espresso with caramel over ice.",
+    "price": 219,
+    "category": "Beverages",
+    "type": "Iced",
+    "isVeg": true,
+    "isFeatured": true,
+    "image": "/src/assets/images/menu_iced_latte_1784782557336.webp"
+  },
+  {
+    "id": "s1",
+    "title": "Pesto Chicken Sandwich",
+    "description": "Grilled chicken, basil pesto, cheese, toasted bread.",
+    "price": 279,
+    "category": "Sandwiches",
+    "type": "Hot",
+    "isVeg": false,
+    "isFeatured": false,
+    "image": "/src/assets/images/cta_croissant_1784782576636.webp"
+  },
+  {
+    "id": "p1",
+    "title": "Aglio Olio Pasta",
+    "description": "Garlic, olive oil, chili flakes, parmesan.",
+    "price": 259,
+    "category": "Pasta",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_cappuccino_1784782504483.webp"
+  },
+  {
+    "id": "d1",
+    "title": "Chocolate Brownie",
+    "description": "Warm brownie with ice cream.",
+    "price": 199,
+    "category": "Desserts",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_cheesecake_1784782526474.webp"
+  },
+  {
+    "id": "d2",
+    "title": "Classic Cheesecake",
+    "description": "Creamy, rich & perfectly sweet.",
+    "price": 239,
+    "category": "Desserts",
+    "type": "Hot",
+    "isVeg": true,
+    "isFeatured": true,
+    "image": "/src/assets/images/menu_cheesecake_1784782526474.webp"
+  },
+  {
+    "id": "bev1",
+    "title": "Berry Smoothie",
+    "description": "Blended berries with yogurt.",
+    "price": 199,
+    "category": "Beverages",
+    "type": "Iced",
+    "isVeg": true,
+    "isFeatured": false,
+    "image": "/src/assets/images/menu_iced_latte_1784782557336.webp"
+  }
+]
+

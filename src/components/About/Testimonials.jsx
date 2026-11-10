@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import testimonialsBg from '../../assets/images/about_testimonials.png';
+import testimonialsBg from '../../assets/images/about_testimonials.webp';
 
 const TestimonialCard = ({ quote, author }) => (
   <div className="flex flex-col items-center text-center px-4 md:px-8 w-full animate-fade-in">
@@ -45,7 +45,7 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="relative py-24 px-4 overflow-hidden">
+    <section className="relative py-10 sm:py-14 md:py-16 px-4 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
          <img loading="lazy" 
@@ -57,7 +57,7 @@ const Testimonials = () => {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center">
-        <h2 className="font-serif text-3xl md:text-4xl text-white mb-6 text-center">Loved by Our Community</h2>
+        <h2 className="font-serif text-[clamp(1.2rem,5.5vw,2.25rem)] text-white mb-6 text-center whitespace-nowrap">Loved by Our Community</h2>
         
         <div className="text-cafe-accent mb-12 flex justify-center items-center">
            <div className="h-[1px] w-12 bg-cafe-accent/30 mr-4"></div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import OrderItemCard from '../../components/OrderOnline/OrderItemCard';
-import coffeeImg from '../../assets/images/menu_cappuccino_1784782504483.png';
-import dessertImg from '../../assets/images/menu_cheesecake_1784782526474.png';
+import coffeeImg from '../../assets/images/menu_cappuccino_1784782504483.webp';
+import dessertImg from '../../assets/images/menu_cheesecake_1784782526474.webp';
 
 const Wishlist = () => {
   const wishlistItems = [

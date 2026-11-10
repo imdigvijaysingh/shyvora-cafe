@@ -1,10 +1,10 @@
 import React from 'react';
 
-import arjunImg from '../../assets/images/team_arjun.png';
-import meeraImg from '../../assets/images/team_meera.png';
-import karanImg from '../../assets/images/team_karan.png';
+import arjunImg from '../../assets/images/team_arjun.webp';
+import meeraImg from '../../assets/images/team_meera.webp';
+import karanImg from '../../assets/images/team_karan.webp';
 // Reusing Meera's image for Riya since generation quota was exhausted
-import riyaImg from '../../assets/images/team_meera.png'; 
+import riyaImg from '../../assets/images/team_meera.webp'; 
 
 const InstagramIcon = ({ size, className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
@@ -70,12 +70,12 @@ const Team = () => {
   ];
 
   return (
-    <section className="py-20 px-4 md:px-8 bg-[#FDFBF7]">
+    <section className="py-8 sm:py-12 md:py-16 px-4 md:px-8 bg-[#FDFBF7]">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         <p className="text-cafe-accent font-semibold tracking-widest text-xs mb-2 uppercase text-center">MEET OUR HEART</p>
-        <h2 className="font-serif text-3xl md:text-4xl text-cafe-dark mb-4 text-center">The People Behind the Brews</h2>
+        <h2 className="font-serif text-[clamp(1.15rem,5.2vw,2.25rem)] text-cafe-dark mb-3 text-center whitespace-nowrap">The People Behind the Brews</h2>
         
-        <div className="text-cafe-accent mb-12 flex justify-center items-center">
+        <div className="text-cafe-accent mb-6 md:mb-10 flex justify-center items-center">
            <div className="h-[1px] w-12 bg-cafe-accent/30 mr-4"></div>
            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
            <div className="h-[1px] w-12 bg-cafe-accent/30 ml-4"></div>

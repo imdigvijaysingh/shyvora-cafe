@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Phone } from 'lucide-react';
+import { useCurrency } from '../context/CurrencyContext';
 
 const InstagramIcon = ({ size, className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
@@ -10,6 +11,9 @@ const FacebookIcon = ({ size, className }) => (
 );
 
 const TopBar = () => {
+  const { formatPrice, exchangeRate, isLiveRate } = useCurrency();
+  const freeDeliveryText = `Free delivery on orders above ${formatPrice(499)}`;
+
   return (
     <div className="bg-cafe-dark text-cafe-bg py-1.5 md:py-2 px-0 md:px-8 text-[11px] md:text-xs z-50 relative overflow-hidden">
       {/* Mobile Marquee View */}
@@ -18,7 +22,7 @@ const TopBar = () => {
           <div className="flex items-center">
             <span className="mx-4 flex items-center gap-1"><MapPin size={12} /> 12 Brew Boulevard, New Delhi</span>
             <span className="mx-2 font-medium text-cafe-accent"> • </span>
-            <span className="mx-4 font-medium tracking-wide">Free delivery on orders above ₹499</span>
+            <span className="mx-4 font-medium tracking-wide">{freeDeliveryText}</span>
             <span className="mx-2 font-medium text-cafe-accent"> • </span>
             <span className="mx-4 flex items-center gap-1"><Phone size={12} /> +91 98765 43210</span>
           </div>
@@ -26,7 +30,7 @@ const TopBar = () => {
           <div className="flex items-center">
             <span className="mx-4 flex items-center gap-1"><MapPin size={12} /> 12 Brew Boulevard, New Delhi</span>
             <span className="mx-2 font-medium text-cafe-accent"> • </span>
-            <span className="mx-4 font-medium tracking-wide">Free delivery on orders above ₹499</span>
+            <span className="mx-4 font-medium tracking-wide">{freeDeliveryText}</span>
             <span className="mx-2 font-medium text-cafe-accent"> • </span>
             <span className="mx-4 flex items-center gap-1"><Phone size={12} /> +91 98765 43210</span>
           </div>
@@ -40,9 +44,13 @@ const TopBar = () => {
           <span>12 Brew Boulevard, New Delhi</span>
         </div>
         <div className="text-center font-medium tracking-wide">
-          Free delivery on orders above ₹499
+          {freeDeliveryText}
         </div>
         <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/25 text-[10px] text-amber-100 font-medium border border-white/10">
+            <span className={`w-1.5 h-1.5 rounded-full ${isLiveRate ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+            <span>Live: 1 USD ≈ ₹{exchangeRate.toFixed(1)}</span>
+          </div>
           <div className="flex items-center gap-2">
             <Phone size={14} />
             <span>+91 98765 43210</span>

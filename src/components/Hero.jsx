@@ -1,47 +1,69 @@
 import { Link } from "react-router-dom";
 import heroVideoWebm from "../assets/videos/home_hero.webm";
+import { useCafeData } from "../context/CafeDataContext";
 
 const Hero = () => {
+  const { settings } = useCafeData();
+  const hero = settings?.hero;
+
+  const videoSource = hero?.videoUrl || heroVideoWebm;
+  const poster = hero?.posterUrl || "/hero_poster.webp";
+  const tagline = hero?.tagline || "Good Coffee, Good Mood";
+  const titleLine1 = hero?.titleLine1 || "Savor Moments,";
+  const titleLine2 = hero?.titleLine2 || "Sip Happiness";
+
   return (
-    <section className="relative w-full min-h-[85dvh] md:min-h-[85dvh] lg:min-h-[85dvh] pb-4 flex items-center justify-center overflow-hidden bg-cafe-darker">
-      {/* Video Background */}
+    <section className="relative w-full h-[50dvh] min-h-[350px] max-h-[52dvh] md:h-auto md:min-h-[55vh] md:max-h-none flex items-center justify-center overflow-hidden bg-cafe-darker py-6 md:py-16">
+      {/* Video Background with instant lightweight poster for green LCP */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <video
+          key={videoSource}
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+          preload="metadata"
+          poster={poster}
+          className="absolute inset-0 w-full h-full object-cover object-center"
         >
-          <source src={heroVideoWebm} type="video/webm" />
+          <source src={videoSource} type="video/webm" />
+          <source src={videoSource} type="video/mp4" />
         </video>
       </div>
 
       {/* Dark Overlay for Text Readability */}
-      <div className="absolute inset-0 z-10 bg-black/50 md:bg-black/40"></div>
+      <div className="absolute inset-0 z-10 bg-black/55 md:bg-black/45"></div>
 
-      {/* Main Content - Centered & Sleek */}
-      <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center mt-2 md:mt-0">
-        <div className="inline-block px-4 py-1.5 md:px-5 md:py-2 border border-white/30 text-white font-medium tracking-[0.2em] md:tracking-[0.25em] text-[10px] sm:text-xs md:text-sm mb-6 uppercase animate-fade-in-up backdrop-blur-sm">
-          Good Coffee, Good Mood
+      {/* Main Content - Spacious, Elegant & Uncluttered */}
+      <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+        {/* Tag Pill */}
+        <div className="inline-block px-3.5 py-1 sm:px-5 sm:py-1.5 border border-white/30 text-white font-medium tracking-[0.2em] md:tracking-[0.25em] text-[10px] sm:text-xs md:text-sm mb-3 sm:mb-4 uppercase animate-fade-in-up backdrop-blur-sm">
+          {tagline}
         </div>
 
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] md:leading-[1.1] mb-4 md:mb-6 animate-fade-in-up-delay-1 drop-shadow-xl px-2">
-          Savor Moments,
-          <br />
-          <span className="italic text-cafe-accent">Sip Happiness</span>
+        {/* Hero Headline - Single row headline */}
+        <h1 className="font-serif text-[clamp(1.25rem,5.6vw,3.75rem)] text-white leading-tight mb-3 sm:mb-5 animate-fade-in-up-delay-1 drop-shadow-xl px-2 whitespace-nowrap">
+          {titleLine1} <span className="italic text-cafe-accent">{titleLine2}</span>
         </h1>
 
-        <p className="text-gray-200 mb-8 md:mb-10 text-base sm:text-lg md:text-xl leading-relaxed font-light max-w-2xl mx-auto animate-fade-in-up-delay-2 drop-shadow-md px-2">
+        {/* Description - Hidden on compact mobile to eliminate clutter; shown on tablet/desktop */}
+        <p className="hidden sm:block text-gray-200 mb-6 md:mb-8 text-sm md:text-base leading-relaxed font-light max-w-lg mx-auto animate-fade-in-up-delay-2 drop-shadow-md px-2">
           Experience the perfect blend of rich flavors, cozy vibes, and
           unforgettable moments in every cup. Your daily escape awaits.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 animate-fade-in-up-delay-2 w-full max-w-xs sm:max-w-none mx-auto">
-          <Link to="/order" className="bg-cafe-accent text-white px-8 md:px-10 py-3.5 md:py-4 text-xs sm:text-sm font-semibold tracking-[0.1em] hover:bg-[#A88358] transition-all duration-300 w-full sm:w-auto text-center inline-block">
+        {/* CTA Buttons - Spacious & Touch-friendly */}
+        <div className="flex flex-row justify-center items-center gap-3 sm:gap-4 animate-fade-in-up-delay-2 w-auto mx-auto mt-1 sm:mt-0">
+          <Link 
+            to="/order" 
+            className="bg-cafe-accent text-white px-5 sm:px-8 md:px-9 py-2.5 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-[0.1em] hover:bg-[#A88358] transition-all duration-300 text-center inline-block shadow-md whitespace-nowrap"
+          >
             ORDER NOW
           </Link>
-          <Link to="/book" className="bg-black/20 backdrop-blur-sm border border-white text-white px-8 md:px-10 py-3.5 md:py-4 text-xs sm:text-sm font-semibold tracking-[0.1em] hover:bg-white hover:text-cafe-dark transition-all duration-300 w-full sm:w-auto text-center inline-block">
+          <Link 
+            to="/book" 
+            className="bg-black/25 backdrop-blur-sm border border-white text-white px-5 sm:px-8 md:px-9 py-2.5 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-[0.1em] hover:bg-white hover:text-cafe-dark transition-all duration-300 text-center inline-block shadow-md whitespace-nowrap"
+          >
             BOOK A TABLE
           </Link>
         </div>

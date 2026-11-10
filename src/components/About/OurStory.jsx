@@ -1,5 +1,5 @@
 import React from 'react';
-import aboutStoryImg from '../../assets/images/about_story.png';
+import aboutStoryImg from '../../assets/images/about_story.webp';
 import { Coffee, Leaf, Users } from 'lucide-react';
 
 const FeatureCol = ({ icon: Icon, title, description }) => (
@@ -16,7 +16,7 @@ const FeatureCol = ({ icon: Icon, title, description }) => (
 
 const OurStory = () => {
   return (
-    <section className="py-24 px-4 md:px-8 bg-cafe-bg flex flex-col md:flex-row gap-16 max-w-7xl mx-auto items-center">
+    <section className="py-8 sm:py-12 md:py-16 px-4 md:px-8 bg-cafe-bg flex flex-col md:flex-row gap-8 md:gap-16 max-w-7xl mx-auto items-center">
       {/* Left Image Box */}
       <div className="hidden md:block flex-1 w-full relative">
         <div className="rounded-3xl overflow-hidden shadow-xl aspect-[4/3] relative group">
@@ -39,8 +39,8 @@ const OurStory = () => {
         <p className="text-cafe-accent font-semibold tracking-widest text-xs mb-3 uppercase">
           OUR STORY
         </p>
-        <h2 className="font-serif text-4xl text-cafe-dark leading-tight mb-4">
-          Brewing Happiness<br/>Since Day One
+        <h2 className="font-serif text-[clamp(1.15rem,5vw,2.5rem)] text-cafe-dark leading-tight mb-4 whitespace-nowrap">
+          Brewing Happiness Since Day One
         </h2>
         
         <div className="text-cafe-accent my-4 flex items-center mb-6">

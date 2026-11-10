@@ -3,7 +3,7 @@ import { Phone, MessageCircle, CalendarClock } from 'lucide-react';
 
 const HelpReservation = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 sm:py-8 md:py-10">
       <div className="bg-[#F8F5F0] rounded-xl border border-[#EBE3D5] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8">
         
         <div className="flex items-center gap-6">

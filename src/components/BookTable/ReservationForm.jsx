@@ -46,7 +46,7 @@ const ReservationForm = () => {
   return (
     <div id="reservation-form" className="flex-1 bg-white p-8 md:p-10 rounded-2xl border border-[#EBE3D5] shadow-sm scroll-mt-24">
       <div className="flex items-center gap-4 mb-8">
-         <h2 className="font-serif text-2xl text-cafe-dark uppercase tracking-widest">MAKE A RESERVATION</h2>
+         <h2 className="font-serif text-[clamp(1.15rem,5vw,1.5rem)] text-cafe-dark uppercase tracking-widest whitespace-nowrap">MAKE A RESERVATION</h2>
       </div>
       
       <div className="text-cafe-accent mb-8 flex items-center">

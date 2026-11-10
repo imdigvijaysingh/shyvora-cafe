@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+*.zip
+.env
+server/.env
+server/uploads/*
+!server/uploads/.gitkeep
 
 # Editor directories and files
 .vscode/*

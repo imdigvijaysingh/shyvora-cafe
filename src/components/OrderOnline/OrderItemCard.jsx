@@ -1,9 +1,11 @@
 import React from 'react';
 import { Heart, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const OrderItemCard = ({ image, title, description, price }) => {
   const { addToCart, cartItems, updateQuantity } = useCart();
+  const { formatPrice } = useCurrency();
   
   const cartItem = cartItems.find(item => item.id === title);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -38,7 +40,7 @@ const OrderItemCard = ({ image, title, description, price }) => {
         <p className="text-xs text-text-secondary line-clamp-2 mb-4 font-medium">{description}</p>
         
         <div className="mt-auto flex items-center justify-between">
-          <span className="font-semibold text-cafe-dark">₹{price}</span>
+          <span className="font-semibold text-cafe-dark">{formatPrice(price)}</span>
           {quantity > 0 ? (
             <div className="flex items-center bg-cafe-accent text-white rounded-sm h-[28px]">
               <button 

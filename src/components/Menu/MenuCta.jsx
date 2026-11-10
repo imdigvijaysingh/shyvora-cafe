@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Armchair, Users, Star, Gift } from 'lucide-react';
-import ctaBg from '../../assets/images/cta_table_1784782567034.png'; // Reusing from home page
+import ctaBg from '../../assets/images/cta_table_1784782567034.webp'; // Reusing from home page
 
 const FeatureItem = ({ icon: Icon, text }) => (
   <div className="flex items-center gap-4 mb-4">
@@ -14,7 +14,7 @@ const FeatureItem = ({ icon: Icon, text }) => (
 
 const MenuCta = () => {
   return (
-    <section className="py-12 px-4 md:px-8 bg-cafe-bg pb-24">
+    <section className="py-8 sm:py-10 md:py-14 px-4 md:px-8 bg-cafe-bg pb-12 sm:pb-16">
       <div className="max-w-7xl mx-auto rounded-3xl overflow-hidden relative min-h-[300px] flex items-center">
         {/* Background */}
         <div className="absolute inset-0 z-0">
@@ -31,7 +31,7 @@ const MenuCta = () => {
           
           <div className="flex-1 md:pr-12 text-center md:text-left">
             <p className="text-gray-400 font-semibold tracking-widest text-[10px] mb-2 uppercase">DINE IN STYLE</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Book a Table for a Perfect Experience</h2>
+            <h2 className="font-serif text-[clamp(1.15rem,5vw,2.25rem)] text-white mb-4 whitespace-nowrap">Book a Table for a Perfect Experience</h2>
             <p className="text-gray-300 text-xs font-light leading-relaxed mb-8 max-w-sm mx-auto md:mx-0">
               Great food, warm ambience and memories that last forever.
             </p>

@@ -1,69 +1,44 @@
 import { Link } from 'react-router-dom';
 import MenuItem from './MenuItem';
 import { ArrowRight } from 'lucide-react';
-
-import cappuccino from '../assets/images/menu_cappuccino_1784782504483.png';
-import toast from '../assets/images/menu_toast_1784782514646.png';
-import cheesecake from '../assets/images/menu_cheesecake_1784782526474.png';
-import icedLatte from '../assets/images/menu_iced_latte_1784782557336.png';
+import { useCafeData } from '../context/CafeDataContext';
 
 const MenuSection = () => {
-  const menuItems = [
-    {
-      id: 1,
-      name: "Cappuccino",
-      description: "Rich espresso with steamed milk foam",
-      price: "199",
-      image: cappuccino
-    },
-    {
-      id: 2,
-      name: "Avocado Toast",
-      description: "Fresh avocado, herbs & sourdough",
-      price: "249",
-      image: toast
-    },
-    {
-      id: 3,
-      name: "Classic Cheesecake",
-      description: "Creamy, rich & perfectly sweet",
-      price: "239",
-      image: cheesecake
-    },
-    {
-      id: 4,
-      name: "Iced Caramel Latte",
-      description: "Smooth espresso with caramel over ice",
-      price: "219",
-      image: icedLatte
-    }
-  ];
+  const { menuItems } = useCafeData();
+
+  // Pick featured items or top 4
+  const featured = menuItems.filter(item => item.isFeatured);
+  const displayItems = featured.length >= 3 ? featured.slice(0, 4) : menuItems.slice(0, 4);
 
   return (
-    <section className="py-20 px-4 md:px-8 bg-cafe-bg">
+    <section className="py-6 sm:py-10 md:py-14 px-4 md:px-8 bg-cafe-bg">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 sm:mb-6 md:mb-8 gap-3 md:gap-4">
           <div>
-            <p className="text-cafe-accent font-semibold tracking-widest text-sm mb-2 uppercase">EXPLORE OUR MENU</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-cafe-dark">Crafted with love, served with passion.</h2>
+            <p className="text-cafe-accent font-semibold tracking-widest text-xs sm:text-sm mb-1 sm:mb-2 uppercase">EXPLORE OUR MENU</p>
+            <h2 className="font-serif text-[clamp(1.1rem,4.8vw,2.25rem)] text-cafe-dark whitespace-nowrap">Crafted with love, served with passion.</h2>
           </div>
-          <Link to="/order" className="flex items-center gap-2 text-sm font-semibold tracking-wider text-cafe-dark hover:text-cafe-accent transition-colors pb-1 border-b border-transparent hover:border-cafe-accent w-fit">
+          <Link to="/menu" className="flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-wider text-cafe-dark hover:text-cafe-accent transition-colors pb-1 border-b border-transparent hover:border-cafe-accent w-fit">
             VIEW FULL MENU <ArrowRight size={16} />
           </Link>
         </div>
 
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible no-scrollbar">
-          {menuItems.map(item => (
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible no-scrollbar">
+          {displayItems.map(item => (
             <div key={item.id} className="min-w-[280px] sm:min-w-[320px] shrink-0 snap-start md:min-w-0 md:shrink-1">
-              <MenuItem {...item} />
+              <MenuItem 
+                name={item.name}
+                description={item.description}
+                price={item.price}
+                image={item.image}
+              />
             </div>
           ))}
         </div>
         
         {/* Simple pagination dots indicator for visual completeness matching design */}
-        <div className="flex justify-center gap-2 mt-10">
+        <div className="flex justify-center gap-2 mt-4 sm:mt-6">
           <div className="w-2 h-2 rounded-full bg-cafe-accent"></div>
-          <div className="w-2 h-2 rounded-full bg-gray-300"></div>
           <div className="w-2 h-2 rounded-full bg-gray-300"></div>
           <div className="w-2 h-2 rounded-full bg-gray-300"></div>
           <div className="w-2 h-2 rounded-full bg-gray-300"></div>

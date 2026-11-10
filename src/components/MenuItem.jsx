@@ -1,9 +1,11 @@
 import React from 'react';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const MenuItem = ({ image, name, description, price }) => {
   const { addToCart, updateQuantity, cartItems } = useCart();
+  const { formatPrice } = useCurrency();
 
   const cartItem = cartItems.find(item => item.id === name);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -29,6 +31,8 @@ const MenuItem = ({ image, name, description, price }) => {
         <img 
           src={image} 
           alt={name} 
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
@@ -39,7 +43,7 @@ const MenuItem = ({ image, name, description, price }) => {
           {description}
         </p>
         <div className="flex items-center justify-between mt-auto pt-4">
-          <span className="font-semibold text-cafe-dark text-lg">₹{price}</span>
+          <span className="font-semibold text-cafe-dark text-lg">{formatPrice(price)}</span>
         </div>
       </div>
       <div className="px-5 mt-auto">

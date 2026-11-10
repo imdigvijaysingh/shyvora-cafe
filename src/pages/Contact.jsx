@@ -28,21 +28,30 @@ const Contact = () => {
   };
 
   return (
-    <section className="py-20 px-4 md:px-8 bg-cafe-bg min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="text-cafe-accent font-semibold tracking-widest text-sm mb-4 uppercase">GET IN TOUCH</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-cafe-dark mb-6">We'd love to hear from you</h1>
-          <p className="text-text-secondary max-w-2xl mx-auto">
-            Whether you have a question about our coffee, want to reserve a space for an event, or just want to say hello, we're here for you.
+    <div>
+      {/* Contact Hero Banner */}
+      <section className="relative bg-cafe-darker text-white py-10 md:py-14 px-4 md:px-8 overflow-hidden text-center flex flex-col items-center justify-center border-b border-white/10">
+        <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+          <span className="inline-block px-3.5 py-1 border border-white/20 text-cafe-accent font-medium tracking-[0.25em] text-xs uppercase mb-3 backdrop-blur-sm">
+            GET IN TOUCH
+          </span>
+          <h1 className="font-serif text-[clamp(1.15rem,5.2vw,2.75rem)] text-white leading-tight mb-3 whitespace-nowrap">
+            We'd Love to <span className="italic text-cafe-accent font-normal">Hear from You</span>
+          </h1>
+          <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed max-w-lg font-light">
+            Whether you have a question about our coffee, special events, or just want to say hello, our team is always here for you.
           </p>
         </div>
+      </section>
 
-        <div className="flex flex-col lg:flex-row gap-12">
+      {/* Main Contact Section */}
+      <section className="py-8 sm:py-12 md:py-16 px-4 md:px-8 bg-cafe-bg min-h-[60vh]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-12">
           {/* Contact Information */}
           <div className="lg:w-1/3 space-y-8">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#EBE3D5]">
-              <h3 className="font-serif text-xl text-cafe-dark mb-6">Contact Information</h3>
+              <h3 className="font-serif text-[clamp(1.1rem,4.8vw,1.5rem)] text-cafe-dark mb-6 whitespace-nowrap">Contact Information</h3>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -95,7 +104,7 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="lg:w-2/3">
             <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-[#EBE3D5]">
-              <h3 className="font-serif text-2xl text-cafe-dark mb-6">Send us a Message</h3>
+              <h3 className="font-serif text-[clamp(1.2rem,5vw,1.75rem)] text-cafe-dark mb-6 whitespace-nowrap">Send us a Message</h3>
               
               {isSent && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 text-green-700 animate-fade-in">
@@ -179,6 +188,7 @@ const Contact = () => {
         </div>
       </div>
     </section>
+    </div>
   );
 };
 

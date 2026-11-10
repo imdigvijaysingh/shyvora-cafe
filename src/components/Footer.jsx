@@ -16,37 +16,37 @@ const TwitterIcon = ({ size }) => (
 
 const Footer = () => {
   return (
-    <footer className="bg-cafe-darker text-white pt-20 pb-8 px-4 md:px-8 text-sm">
-      <div className="max-w-8xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16 text-center md:text-left">
+    <footer className="bg-cafe-darker text-white pt-8 sm:pt-12 md:pt-16 pb-8 px-4 sm:px-6 md:px-8 text-sm">
+      <div className="max-w-8xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12 md:mb-14 text-center md:text-left">
         
         {/* Brand Info */}
-        <div className="lg:col-span-1 flex flex-col items-center md:items-start">
-          <div className="flex flex-col items-center md:items-start mb-6">
-             <span className="font-serif text-2xl font-semibold tracking-wide text-[#EFE9DF]">Brew & Bloom</span>
-             <span className="text-[10px] tracking-widest uppercase text-cafe-accent -mt-1">Cafe</span>
+        <div className="lg:col-span-1 flex flex-col items-center md:items-start px-2">
+          <div className="flex flex-col items-center md:items-start mb-3 sm:mb-4">
+             <span className="font-serif text-2xl sm:text-3xl font-semibold tracking-wide text-[#EFE9DF]">Brew & Bloom</span>
+             <span className="text-xs tracking-widest uppercase text-cafe-accent mt-0.5">Cafe</span>
           </div>
-          <p className="text-gray-400 font-light leading-relaxed mb-6 text-xs max-w-[250px]">
+          <p className="text-gray-300 font-light leading-relaxed mb-4 sm:mb-6 text-sm sm:text-base max-w-sm md:max-w-[260px]">
             A cozy cafe where great coffee, delicious food, and good vibes come together.
           </p>
           <div className="flex items-center gap-4 justify-center md:justify-start">
-            <div className="bg-white/5 p-2 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
-               <InstagramIcon size={16} />
+            <div className="bg-white/10 p-2.5 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
+               <InstagramIcon size={18} />
             </div>
-            <div className="bg-white/5 p-2 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
-               <FacebookIcon size={16} />
+            <div className="bg-white/10 p-2.5 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
+               <FacebookIcon size={18} />
             </div>
-            <div className="bg-white/5 p-2 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
-               <TwitterIcon size={16} />
+            <div className="bg-white/10 p-2.5 rounded-full cursor-pointer hover:bg-cafe-accent transition-colors">
+               <TwitterIcon size={18} />
             </div>
           </div>
         </div>
 
-        {/* Quick Links & Help (Side by side on mobile) */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4 md:gap-12 text-center md:text-left">
+        {/* Quick Links & Help (Balanced 2-column layout on mobile) */}
+        <div className="lg:col-span-2 grid grid-cols-2 gap-6 sm:gap-8 md:gap-12 text-left px-4 sm:px-6 md:px-0 max-w-sm sm:max-w-md mx-auto md:max-w-none w-full">
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-white tracking-widest text-xs uppercase mb-6">QUICK LINKS</h4>
-            <ul className="space-y-4 text-gray-400 font-light text-xs">
+            <h4 className="font-semibold text-white tracking-widest text-xs sm:text-sm uppercase mb-3 sm:mb-4">QUICK LINKS</h4>
+            <ul className="space-y-2.5 sm:space-y-3 text-gray-300 font-light text-sm sm:text-base">
               <li><Link to="/" className="hover:text-cafe-accent transition-colors">Home</Link></li>
               <li><Link to="/menu" className="hover:text-cafe-accent transition-colors">Menu</Link></li>
               <li><Link to="/order" className="hover:text-cafe-accent transition-colors">Order Online</Link></li>
@@ -58,8 +58,8 @@ const Footer = () => {
 
           {/* Help */}
           <div>
-            <h4 className="font-semibold text-white tracking-widest text-xs uppercase mb-6">HELP</h4>
-            <ul className="space-y-4 text-gray-400 font-light text-xs">
+            <h4 className="font-semibold text-white tracking-widest text-xs sm:text-sm uppercase mb-3 sm:mb-4">HELP</h4>
+            <ul className="space-y-2.5 sm:space-y-3 text-gray-300 font-light text-sm sm:text-base">
               <li><a href="#" className="hover:text-cafe-accent transition-colors">FAQs</a></li>
               <li><a href="#" className="hover:text-cafe-accent transition-colors">Delivery</a></li>
               <li><a href="#" className="hover:text-cafe-accent transition-colors">Returns</a></li>
@@ -70,49 +70,49 @@ const Footer = () => {
         </div>
 
         {/* Contact Us */}
-        <div className="lg:col-span-1 flex flex-col items-center md:items-start">
-          <h4 className="font-semibold text-white tracking-widest text-xs uppercase mb-6">CONTACT US</h4>
-          <ul className="space-y-4 text-gray-400 font-light text-xs inline-block text-left">
-            <li className="flex items-start gap-3 justify-center md:justify-start">
-              <span className="text-cafe-accent mt-0.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <div className="lg:col-span-1 flex flex-col items-center md:items-start px-4 sm:px-6 md:px-0 w-full max-w-sm sm:max-w-md mx-auto md:max-w-none">
+          <h4 className="font-semibold text-white tracking-widest text-xs sm:text-sm uppercase mb-3 sm:mb-4 text-left w-full">CONTACT US</h4>
+          <ul className="space-y-3 text-gray-300 font-light text-sm sm:text-base w-full text-left">
+            <li className="flex items-start gap-3">
+              <span className="text-cafe-accent mt-0.5 shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
               <span>12 Brew Boulevard,<br/>New Delhi 110001</span>
             </li>
-            <li className="flex items-center gap-3 justify-center md:justify-start">
-              <span className="text-cafe-accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+            <li className="flex items-center gap-3">
+              <span className="text-cafe-accent shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
               <span>+91 98765 43210</span>
             </li>
-            <li className="flex items-center gap-3 justify-center md:justify-start">
-              <span className="text-cafe-accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+            <li className="flex items-center gap-3">
+              <span className="text-cafe-accent shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
               <span>hello@brewandbloom.cafe</span>
             </li>
-            <li className="flex items-center gap-3 justify-center md:justify-start">
-              <span className="text-cafe-accent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            <li className="flex items-center gap-3">
+              <span className="text-cafe-accent shrink-0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
               <span>8:00 AM – 11:00 PM</span>
             </li>
           </ul>
         </div>
 
         {/* Notifications */}
-        <div className="lg:col-span-1 flex flex-col items-center md:items-start">
-           <h4 className="font-semibold text-white tracking-widest text-xs uppercase mb-6">OFFERS & NOTIFICATIONS</h4>
-           <p className="text-gray-400 font-light text-xs mb-4 max-w-[250px]">
+        <div className="lg:col-span-1 flex flex-col items-center md:items-start px-4 sm:px-6 md:px-0 w-full max-w-sm sm:max-w-md mx-auto md:max-w-none">
+           <h4 className="font-semibold text-white tracking-widest text-xs sm:text-sm uppercase mb-3 sm:mb-4 text-left w-full md:w-auto">OFFERS & NOTIFICATIONS</h4>
+           <p className="text-gray-300 font-light text-sm mb-4 text-left w-full md:w-auto">
              Get updates on offers & events via Email or WhatsApp.
            </p>
-           <div className="flex w-full max-w-[280px]">
+           <div className="flex w-full">
              <input 
                type="text" 
                placeholder="Email or WhatsApp No." 
-               className="bg-transparent border border-gray-700 text-white px-4 py-2 w-full text-xs focus:outline-none focus:border-cafe-accent text-center md:text-left"
+               className="bg-white/10 border border-gray-600 text-white px-4 py-2.5 w-full text-sm focus:outline-none focus:border-cafe-accent text-left placeholder:text-gray-400 rounded-l-md"
              />
-             <button className="bg-cafe-accent text-white px-4 py-2 flex items-center justify-center hover:bg-[#A9845B] transition-colors border border-cafe-accent">
-               <Send size={14} />
+             <button className="bg-cafe-accent text-white px-5 py-2.5 flex items-center justify-center hover:bg-[#A9845B] transition-colors border border-cafe-accent rounded-r-md shrink-0">
+               <Send size={16} />
              </button>
            </div>
         </div>
 
       </div>
 
-      <div className="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-sm text-gray-500 gap-4">
+      <div className="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-center pt-6 border-t border-white/10 text-xs sm:text-sm text-gray-400 gap-3">
         <p>Designed by <a href="https://shyvoratechnologies.netlify.app" target="_blank" className="text-cafe-accent font-bold hover:text-white transition-colors">Shyvora Technologies</a></p>
         <div className="flex gap-2">
           {/* Payment Image Containers (Images to be added by user) */}

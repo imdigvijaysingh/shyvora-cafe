@@ -1,8 +1,8 @@
-import coffeeImg from '../assets/images/menu_cappuccino_1784782504483.png';
-import breakfastImg from '../assets/images/menu_toast_1784782514646.png';
-import sandwichImg from '../assets/images/cta_croissant_1784782576636.png';
-import dessertImg from '../assets/images/menu_cheesecake_1784782526474.png';
-import beverageImg from '../assets/images/menu_iced_latte_1784782557336.png';
+import coffeeImg from '../assets/images/menu_cappuccino_1784782504483.webp';
+import breakfastImg from '../assets/images/menu_toast_1784782514646.webp';
+import sandwichImg from '../assets/images/cta_croissant_1784782576636.webp';
+import dessertImg from '../assets/images/menu_cheesecake_1784782526474.webp';
+import beverageImg from '../assets/images/menu_iced_latte_1784782557336.webp';
 
 export const menuDatabase = [
   {

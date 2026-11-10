@@ -1,38 +1,63 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
+import { useCafeData } from '../context/CafeDataContext';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Calendar as CalendarIcon, MapPin, Tag, Check, CreditCard, Banknote, X, ArrowLeft } from 'lucide-react';
+import { 
+  CreditCard, 
+  MessageSquare, 
+  ShoppingBag, 
+  Tag, 
+  Check, 
+  Clock, 
+  MapPin, 
+  Coffee, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  ArrowLeft,
+  UtensilsCrossed,
+  Truck
+} from 'lucide-react';
+import InvoiceModal from '../components/InvoiceModal';
 
 const Checkout = () => {
-  const { cartItems, subtotal, clearCart, addOrder, updateQuantity, removeFromCart } = useCart();
+  const { cartItems, subtotal, clearCart, updateQuantity, removeFromCart } = useCart();
+  const { formatPrice, currency } = useCurrency();
+  const { settings, API_URL } = useCafeData();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState('cart');
+  // Customer Form state - default to Takeaway as most customers place quick food orders
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [orderType, setOrderType] = useState('Takeaway');
+  const [tableOrAddress, setTableOrAddress] = useState('');
+  const [specialNotes, setSpecialNotes] = useState('');
 
+  // Payment method selection: 'razorpay' or 'whatsapp_counter'
+  const [paymentChoice, setPaymentChoice] = useState('razorpay');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Promo code
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponError, setCouponError] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('upi');
-  
-  // Pre-booking form state
-  const [bookingDate, setBookingDate] = useState('');
-  const [arrivalTime, setArrivalTime] = useState('');
-  const [tableType, setTableType] = useState('standard');
-  const [guests, setGuests] = useState(2);
 
+  // Invoice Modal state
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const [currentOrderData, setCurrentOrderData] = useState(null);
   const [errors, setErrors] = useState({});
-  const [showSuccess, setShowSuccess] = useState(false);
-  
-  const dateRef = useRef(null);
-  const timeRef = useRef(null);
 
   const handleApplyCoupon = () => {
-    if (couponCode.toUpperCase() === 'WELCOME20') {
+    const code = couponCode.trim().toUpperCase();
+    const seasonalCode = settings?.seasonalTheme?.discountCode?.toUpperCase();
+
+    if (code === 'WELCOME20' || (seasonalCode && code === seasonalCode)) {
       setDiscount(subtotal * 0.2);
       setCouponApplied(true);
       setCouponError('');
-    } else if (couponCode.toUpperCase() === 'CAFE10') {
+    } else if (code === 'CAFE10') {
       setDiscount(subtotal * 0.1);
       setCouponApplied(true);
       setCouponError('');
@@ -43,47 +68,183 @@ const Checkout = () => {
     }
   };
 
-  const finalTotal = subtotal - discount;
+  const deliveryFee = orderType === 'Delivery' ? (currency === 'INR' ? 40 : 1.5) : 0;
+  const finalTotal = Math.max(0, subtotal - discount + deliveryFee);
 
-  const handlePlaceOrder = (e) => {
-    e.preventDefault();
-    if (cartItems.length === 0) return;
-    
-    const newErrors = {};
-    if (!bookingDate) newErrors.bookingDate = 'Please select a date.';
-    if (!arrivalTime) newErrors.arrivalTime = 'Please select a time.';
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      if (!bookingDate && dateRef.current) {
-        dateRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (!arrivalTime && timeRef.current) {
-        timeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
+  const validateForm = () => {
+    const errs = {};
+    if (!customerName.trim()) errs.customerName = 'Please enter your name.';
+    if (!customerPhone.trim() || customerPhone.replace(/[^0-9]/g, '').length < 8) {
+      errs.customerPhone = 'Please enter a valid phone number.';
     }
-    
-    const order = {
-      items: cartItems.map(item => ({ name: item.name, qty: item.quantity })),
-      total: (finalTotal + (subtotal * 0.05)).toFixed(2),
-      date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
-      bookingDate,
-      arrivalTime,
-      paymentMethod
-    };
-    
-    addOrder(order);
-    setErrors({});
-    setShowSuccess(true);
+    // For Delivery, address is required.
+    // For Takeaway and Dine-in, customer can order smoothly without rigid requirements.
+    if (orderType === 'Delivery' && !tableOrAddress.trim()) {
+      errs.tableOrAddress = 'Please enter your delivery address.';
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
-  if (cartItems.length === 0) {
+  // Helper to load Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Complete Order
+  const handleProceed = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    if (cartItems.length === 0) return;
+
+    setIsProcessing(true);
+    const invoiceId = `INV-${Date.now().toString().slice(-6)}`;
+
+    // OPTION A: PAY ONLINE VIA RAZORPAY
+    if (paymentChoice === 'razorpay') {
+      try {
+        // Create order on backend
+        const res = await fetch(`${API_URL}/api/payment/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: finalTotal,
+            currency: currency === 'USD' ? 'USD' : 'INR',
+            receipt: invoiceId,
+            notes: { customerName, customerPhone, orderType }
+          })
+        }).catch(() => null);
+
+        let orderInfo = null;
+        if (res && res.ok) {
+          orderInfo = await res.json();
+        }
+
+        const isScriptLoaded = await loadRazorpayScript();
+
+        // If Razorpay SDK loaded and real key provided
+        if (isScriptLoaded && orderInfo && orderInfo.keyId && !orderInfo.keyId.includes('mock') && !orderInfo.keyId.includes('placeholder')) {
+          const options = {
+            key: orderInfo.keyId,
+            amount: orderInfo.order.amount,
+            currency: orderInfo.order.currency,
+            name: settings?.cafeName || 'Brew & Bloom Cafe',
+            description: `Order ${invoiceId}`,
+            image: '/favicon.ico',
+            order_id: orderInfo.order.id,
+            handler: function (response) {
+              finalizeOrder({
+                invoiceId,
+                paymentMethod: 'Razorpay Online',
+                paymentStatus: 'Paid',
+                paymentId: response.razorpay_payment_id
+              });
+            },
+            prefill: {
+              name: customerName,
+              contact: customerPhone
+            },
+            theme: { color: '#1A2C21' }
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+          setIsProcessing(false);
+          return;
+        }
+
+        // Test/Demo Sandbox Mode
+        setTimeout(() => {
+          finalizeOrder({
+            invoiceId,
+            paymentMethod: 'Razorpay Online (Test)',
+            paymentStatus: 'Paid via Razorpay (Test)',
+            paymentId: `pay_test_${Date.now().toString().slice(-8)}`
+          });
+          setIsProcessing(false);
+        }, 800);
+
+      } catch (err) {
+        console.error('Payment error:', err);
+        finalizeOrder({
+          invoiceId,
+          paymentMethod: 'Razorpay Online',
+          paymentStatus: 'Paid (Test Reference)',
+          paymentId: `pay_${Date.now().toString().slice(-8)}`
+        });
+        setIsProcessing(false);
+      }
+    } 
+    // OPTION B: DIRECT ORDER (PAY AT COUNTER / WHATSAPP COD)
+    else {
+      finalizeOrder({
+        invoiceId,
+        paymentMethod: orderType === 'Delivery' ? 'Cash on Delivery' : 'Pay at Counter',
+        paymentStatus: 'Pay at Counter / Unpaid',
+        paymentId: null
+      });
+      setIsProcessing(false);
+    }
+  };
+
+  const finalizeOrder = (paymentMeta) => {
+    // Resolve location: If dine-in and nothing typed, default to 'Any Available Table'
+    const resolvedLocation = orderType === 'Dine-in'
+      ? (tableOrAddress.trim() || 'Any Available Table')
+      : tableOrAddress.trim();
+
+    const orderData = {
+      invoiceId: paymentMeta.invoiceId,
+      customerName,
+      customerPhone,
+      orderType,
+      tableOrAddress: resolvedLocation,
+      specialNotes,
+      items: cartItems.map(item => ({
+        name: item.name || item.title,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      subtotal,
+      deliveryFee,
+      discount,
+      total: finalTotal,
+      paymentMethod: paymentMeta.paymentMethod,
+      paymentStatus: paymentMeta.paymentStatus,
+      paymentId: paymentMeta.paymentId,
+      date: new Date().toLocaleString()
+    };
+
+    setCurrentOrderData(orderData);
+    setIsInvoiceOpen(true);
+    clearCart();
+  };
+
+  if (cartItems.length === 0 && !isInvoiceOpen) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
-        <h2 className="font-serif text-3xl text-cafe-dark mb-4">Your cart is empty</h2>
-        <p className="text-text-secondary mb-8">Add some delicious items to your cart before proceeding.</p>
-        <button onClick={() => navigate('/menu')} className="bg-cafe-dark text-white px-8 py-3 rounded-full hover:bg-cafe-accent transition-colors">
-          Browse Menu
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center bg-cafe-bg">
+        <div className="w-16 h-16 rounded-full bg-cafe-darker/5 flex items-center justify-center text-cafe-accent mb-4">
+          <ShoppingBag size={28} />
+        </div>
+        <h2 className="font-serif text-3xl text-cafe-dark mb-2">Your Cart is Empty</h2>
+        <p className="text-text-secondary mb-6 text-sm max-w-sm">
+          Explore our handcrafted coffees, artisan breakfast, and desserts to start your order.
+        </p>
+        <button 
+          onClick={() => navigate('/menu')} 
+          className="bg-cafe-accent text-white px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#A88358] transition-all shadow-md"
+        >
+          Browse Our Menu
         </button>
       </div>
     );
@@ -91,322 +252,525 @@ const Checkout = () => {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-12 animate-fade-in-up">
-        <h1 className="font-serif text-4xl text-cafe-dark mb-8 text-center md:text-left">
-          {step === 'cart' ? 'Your Cart' : 'Pre-book & Checkout'}
-        </h1>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 bg-cafe-bg min-h-screen">
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Back Link */}
+        <button 
+          onClick={() => navigate('/menu')} 
+          className="flex items-center gap-2 text-xs font-semibold text-cafe-dark hover:text-cafe-accent mb-6 transition-colors"
+        >
+          <ArrowLeft size={16} /> Continue Browsing Menu
+        </button>
+
+        <h1 className="font-serif text-[clamp(1.35rem,5.5vw,2.5rem)] text-cafe-dark mb-2 whitespace-nowrap">
+          Review & Place Order
+        </h1>
+        <p className="text-text-secondary text-xs sm:text-sm mb-8">
+          Order directly with instant WhatsApp confirmation to our cafe barista.
+        </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column: Form Details */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* LEFT: Customer Details & Payment Options (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
             
-            {step === 'cart' ? (
-              <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
-                 <h2 className="font-serif text-2xl text-cafe-dark mb-6">Cart Items</h2>
-                 <div className="space-y-6">
-                   {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center gap-4 py-4 border-b border-[#EBE3D5] last:border-0 relative">
-                        <img src={item.image} alt={item.name} className="w-20 h-20 rounded-xl object-cover shadow-sm" />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-cafe-dark text-lg">{item.name}</h4>
-                          <span className="text-sm font-semibold text-cafe-dark">₹{item.price}</span>
-                          <div className="flex items-center border border-[#EBE3D5] rounded-md w-fit bg-[#F8F5F0] mt-3">
-                             <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="px-3 py-1 text-gray-500 hover:text-cafe-dark">-</button>
-                             <span className="px-3 text-sm font-medium border-x border-[#EBE3D5]">{item.quantity}</span>
-                             <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="px-3 py-1 text-gray-500 hover:text-cafe-dark">+</button>
-                          </div>
+            {/* 1. Customer Information Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#EBE3D5] shadow-sm">
+              <h2 className="font-serif text-xl font-semibold text-cafe-dark mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-cafe-accent text-white text-xs flex items-center justify-center font-sans">1</span>
+                Your Details
+              </h2>
+
+              <div className="space-y-4 text-xs sm:text-sm">
+                <div>
+                  <label className="block text-cafe-dark font-medium mb-1">Your Full Name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. John Doe"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-sm"
+                  />
+                  {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-cafe-dark font-medium mb-1">Phone / WhatsApp Number *</label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-sm"
+                  />
+                  {errors.customerPhone && <p className="text-red-500 text-xs mt-1">{errors.customerPhone}</p>}
+                  <span className="text-[11px] text-text-secondary mt-1 block">Your invoice & order updates will be sent to this number.</span>
+                </div>
+
+                {/* Order Type / Dining Preference with Radio Buttons */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-cafe-dark font-medium text-xs sm:text-sm">
+                      Select Order & Dining Preference *
+                    </label>
+                    <span className="text-[11px] text-text-secondary">Choose option</span>
+                  </div>
+
+                  {/* Radio Options Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    
+                    {/* Option 1: Takeaway (Most Common) */}
+                    <label 
+                      className={`relative flex flex-col p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                        orderType === 'Takeaway' 
+                          ? 'border-cafe-accent bg-cafe-accent/5 ring-1 ring-cafe-accent/30 shadow-xs' 
+                          : 'border-[#EBE3D5] bg-[#FDFBF7] hover:border-[#D6C7B2]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="orderType"
+                            value="Takeaway"
+                            checked={orderType === 'Takeaway'}
+                            onChange={() => {
+                              setOrderType('Takeaway');
+                              setTableOrAddress('');
+                            }}
+                            className="w-4 h-4 text-cafe-accent focus:ring-cafe-accent accent-cafe-accent cursor-pointer"
+                          />
+                          <span className="font-semibold text-cafe-dark text-xs sm:text-sm flex items-center gap-1.5">
+                            <ShoppingBag size={15} className="text-cafe-accent shrink-0" />
+                            Takeaway
+                          </span>
                         </div>
-                        <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500 p-2">
-                           <X size={20} />
-                        </button>
+                        <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                          Quick
+                        </span>
                       </div>
-                   ))}
-                 </div>
-              </div>
-            ) : (
-              <>
-                {/* Pre-Booking Details */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
-              <h2 className="font-serif text-2xl text-cafe-dark mb-6 flex items-center gap-2">
-                <CalendarIcon className="text-cafe-accent" /> Table Pre-booking
-              </h2>
-              <p className="text-sm text-text-secondary mb-6">Select when you'll arrive. We'll have your food ready and your table reserved!</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div ref={dateRef}>
-                  <label className="block text-sm font-medium text-cafe-dark mb-2">Arrival Date</label>
-                  <div className="relative">
-                    <CalendarIcon size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.bookingDate ? 'text-red-400' : 'text-gray-400'}`} />
-                    <input 
-                      type="date" 
-                      required
-                      value={bookingDate}
-                      onChange={(e) => { setBookingDate(e.target.value); setErrors(prev => ({...prev, bookingDate: null})) }}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:border-cafe-accent bg-transparent transition-colors ${errors.bookingDate ? 'border-red-500 bg-red-50/20' : 'border-[#EBE3D5]'}`}
-                    />
-                  </div>
-                  {errors.bookingDate && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.bookingDate}</p>}
-                </div>
-                
-                <div ref={timeRef}>
-                  <label className="block text-sm font-medium text-cafe-dark mb-2">Arrival Time</label>
-                  <div className="relative">
-                    <Clock size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.arrivalTime ? 'text-red-400' : 'text-gray-400'}`} />
-                    <input 
-                      type="time" 
-                      required
-                      value={arrivalTime}
-                      onChange={(e) => { setArrivalTime(e.target.value); setErrors(prev => ({...prev, arrivalTime: null})) }}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:border-cafe-accent bg-transparent transition-colors ${errors.arrivalTime ? 'border-red-500 bg-red-50/20' : 'border-[#EBE3D5]'}`}
-                    />
-                  </div>
-                  {errors.arrivalTime && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.arrivalTime}</p>}
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-cafe-dark mb-2">Number of Guests</label>
-                  <select 
-                    value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
-                    className="w-full px-4 py-3 border border-[#EBE3D5] rounded-xl focus:outline-none focus:border-cafe-accent bg-transparent appearance-none"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                      <option key={num} value={num}>{num} {num === 1 ? 'Guest' : 'Guests'}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-cafe-dark mb-2">Table Preference</label>
-                  <select 
-                    value={tableType}
-                    onChange={(e) => setTableType(e.target.value)}
-                    className="w-full px-4 py-3 border border-[#EBE3D5] rounded-xl focus:outline-none focus:border-cafe-accent bg-transparent appearance-none"
-                  >
-                    <option value="standard">Standard Table</option>
-                    <option value="window">Window Seat</option>
-                    <option value="outdoor">Outdoor Patio</option>
-                    <option value="booth">Cozy Booth</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-            {/* Payment Method */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm">
-              <h2 className="font-serif text-2xl text-cafe-dark mb-6 flex items-center gap-2">
-                <CreditCard className="text-cafe-accent" /> Payment Method
-              </h2>
-              
-              <div className="space-y-4">
-                <label className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'upi' ? 'border-cafe-accent bg-[#F8F5F0]' : 'border-[#EBE3D5] hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" 
-                    name="payment" 
-                    value="upi" 
-                    checked={paymentMethod === 'upi'}
-                    onChange={() => setPaymentMethod('upi')}
-                    className="w-4 h-4 text-cafe-accent accent-cafe-accent"
-                  />
-                  <div className="flex-grow">
-                    <h4 className="font-semibold text-cafe-dark">UPI / Razorpay</h4>
-                    <p className="text-xs text-text-secondary">Pay securely via Google Pay, PhonePe, Paytm</p>
-                  </div>
-                </label>
-                
-                <label className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'cafe' ? 'border-cafe-accent bg-[#F8F5F0]' : 'border-[#EBE3D5] hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" 
-                    name="payment" 
-                    value="cafe" 
-                    checked={paymentMethod === 'cafe'}
-                    onChange={() => setPaymentMethod('cafe')}
-                    className="w-4 h-4 text-cafe-accent accent-cafe-accent"
-                  />
-                  <div className="flex-grow">
-                    <h4 className="font-semibold text-cafe-dark">Pay at Cafe</h4>
-                    <p className="text-xs text-text-secondary">Pay when you arrive at your pre-booked table</p>
-                  </div>
-                  <Banknote size={24} className="text-gray-400" />
-                </label>
-              </div>
-            </div>
-            
-            </>
-            )}
-            
-          </div>
-          
-          {/* Right Column: Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-[#F8F5F0] p-6 rounded-2xl border border-[#EBE3D5] sticky top-24 shadow-sm">
-              <h2 className="font-serif text-2xl text-cafe-dark mb-6">Order Summary</h2>
-              
-              {step === 'booking' && (
-                <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2">
-                  {cartItems.map((item, index) => (
-                    <div key={index} className="flex justify-between items-start gap-4">
-                      <div className="flex-grow">
-                        <h4 className="font-medium text-cafe-dark text-sm">{item.name}</h4>
-                        <p className="text-xs text-text-secondary">Qty: {item.quantity}</p>
+                      <p className="text-[11px] text-text-secondary leading-snug">
+                        Just book food & drinks, ready to pick up at counter.
+                      </p>
+                    </label>
+
+                    {/* Option 2: Dine-In with Table Preference */}
+                    <label 
+                      className={`relative flex flex-col p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                        orderType === 'Dine-in' 
+                          ? 'border-cafe-accent bg-cafe-accent/5 ring-1 ring-cafe-accent/30 shadow-xs' 
+                          : 'border-[#EBE3D5] bg-[#FDFBF7] hover:border-[#D6C7B2]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="orderType"
+                            value="Dine-in"
+                            checked={orderType === 'Dine-in'}
+                            onChange={() => setOrderType('Dine-in')}
+                            className="w-4 h-4 text-cafe-accent focus:ring-cafe-accent accent-cafe-accent cursor-pointer"
+                          />
+                          <span className="font-semibold text-cafe-dark text-xs sm:text-sm flex items-center gap-1.5">
+                            <UtensilsCrossed size={15} className="text-cafe-accent shrink-0" />
+                            Dine-In
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                          At Cafe
+                        </span>
                       </div>
-                      <span className="font-semibold text-sm text-cafe-dark">₹{item.price * item.quantity}</span>
+                      <p className="text-[11px] text-text-secondary leading-snug">
+                        Dine at the cafe with your preferred table / seating.
+                      </p>
+                    </label>
+
+                    {/* Option 3: Delivery */}
+                    <label 
+                      className={`relative flex flex-col p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                        orderType === 'Delivery' 
+                          ? 'border-cafe-accent bg-cafe-accent/5 ring-1 ring-cafe-accent/30 shadow-xs' 
+                          : 'border-[#EBE3D5] bg-[#FDFBF7] hover:border-[#D6C7B2]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="orderType"
+                            value="Delivery"
+                            checked={orderType === 'Delivery'}
+                            onChange={() => setOrderType('Delivery')}
+                            className="w-4 h-4 text-cafe-accent focus:ring-cafe-accent accent-cafe-accent cursor-pointer"
+                          />
+                          <span className="font-semibold text-cafe-dark text-xs sm:text-sm flex items-center gap-1.5">
+                            <Truck size={15} className="text-cafe-accent shrink-0" />
+                            Delivery
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-text-secondary">
+                          {currency === 'INR' ? '+₹40' : '+$1.50'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-text-secondary leading-snug">
+                        Doorstep delivery straight to your address.
+                      </p>
+                    </label>
+
+                  </div>
+                </div>
+
+                {/* Dynamic Contextual Input Section */}
+                {/* 1. Dine-In: Table Preference */}
+                {orderType === 'Dine-in' && (
+                  <div className="bg-[#FAF7F2] p-4 rounded-xl border border-[#EBE3D5] space-y-3 animate-fade-in-up">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-cafe-dark font-medium text-xs sm:text-sm">
+                        Table Preference / Seating Area
+                      </label>
+                      <span className="text-[11px] text-cafe-accent font-semibold bg-cafe-accent/10 px-2 py-0.5 rounded-full">
+                        Table Preference
+                      </span>
                     </div>
-                  ))}
+
+                    <p className="text-[11px] text-text-secondary">
+                      Select your preferred seating spot or enter a table number if you are already seated:
+                    </p>
+
+                    {/* Table Preference Quick Chips */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        '🪟 Window Side',
+                        '🌿 Outdoor Garden',
+                        '🛋️ Cozy Booth',
+                        '☕ Indoor Ambiance',
+                        '✨ Any Available Table'
+                      ].map(pref => (
+                        <button
+                          key={pref}
+                          type="button"
+                          onClick={() => setTableOrAddress(pref)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            tableOrAddress === pref 
+                              ? 'bg-cafe-accent text-white shadow-xs font-semibold' 
+                              : 'bg-white text-cafe-dark border border-[#EBE3D5] hover:border-cafe-accent'
+                          }`}
+                        >
+                          {pref}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="e.g. Table 4, Window Side, or Quiet Corner"
+                      value={tableOrAddress}
+                      onChange={(e) => setTableOrAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-xs sm:text-sm"
+                    />
+                    <span className="text-[11px] text-text-secondary block">
+                      Leave blank or select "Any Available Table" if you don't have a specific table yet.
+                    </span>
+                  </div>
+                )}
+
+                {/* 2. Takeaway: Quick Pickup Timing (Optional) */}
+                {orderType === 'Takeaway' && (
+                  <div className="bg-[#FAF7F2] p-4 rounded-xl border border-[#EBE3D5] space-y-2.5 animate-fade-in-up">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-cafe-dark font-medium text-xs sm:text-sm">
+                        Pickup Timing / Counter Note (Optional)
+                      </label>
+                      <span className="text-[11px] text-text-secondary">No table required</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        '⚡ Ready ASAP (15 mins)',
+                        '🕒 In 30 mins',
+                        '🚶 I am on my way'
+                      ].map(time => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => setTableOrAddress(time)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            tableOrAddress === time 
+                              ? 'bg-cafe-accent text-white shadow-xs font-semibold' 
+                              : 'bg-white text-cafe-dark border border-[#EBE3D5] hover:border-cafe-accent'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="e.g. Ready in 15 mins, or Pick up after 4:30 PM"
+                      value={tableOrAddress}
+                      onChange={(e) => setTableOrAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-xs sm:text-sm"
+                    />
+                  </div>
+                )}
+
+                {/* 3. Delivery: Delivery Address (Required) */}
+                {orderType === 'Delivery' && (
+                  <div className="bg-[#FAF7F2] p-4 rounded-xl border border-[#EBE3D5] space-y-2.5 animate-fade-in-up">
+                    <label className="block text-cafe-dark font-medium text-xs sm:text-sm">
+                      Delivery Address *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Flat 402, Green Avenue, Landmark near City Mall"
+                      value={tableOrAddress}
+                      onChange={(e) => setTableOrAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-xs sm:text-sm"
+                    />
+                    {errors.tableOrAddress && <p className="text-red-500 text-xs mt-1">{errors.tableOrAddress}</p>}
+                  </div>
+                )}
+
+                {/* Special Instructions */}
+                <div>
+                  <label className="block text-cafe-dark font-medium mb-1">Special Cooking Instructions (Optional)</label>
+                  <textarea
+                    rows="2"
+                    placeholder="e.g. Less sugar, extra hot milk, no onions..."
+                    value={specialNotes}
+                    onChange={(e) => setSpecialNotes(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl border border-[#EBE3D5] focus:outline-none focus:border-cafe-accent bg-white text-cafe-dark text-xs sm:text-sm resize-none"
+                  ></textarea>
                 </div>
-              )}
-              
-              <div className="border-t border-[#EBE3D5] pt-6 mb-6">
-                <div className="flex gap-2 mb-2">
-                  <input 
-                    type="text" 
-                    placeholder="Coupon code (e.g., WELCOME20)" 
+              </div>
+            </div>
+
+            {/* 2. Payment Method Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-[#EBE3D5] shadow-sm">
+              <h2 className="font-serif text-xl font-semibold text-cafe-dark mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-cafe-accent text-white text-xs flex items-center justify-center font-sans">2</span>
+                Choose Payment Method
+              </h2>
+
+              <div className="space-y-3">
+                {/* Razorpay Online */}
+                <label 
+                  onClick={() => setPaymentChoice('razorpay')}
+                  className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                    paymentChoice === 'razorpay'
+                      ? 'border-cafe-accent bg-[#FDFBF7] shadow-sm'
+                      : 'border-[#EBE3D5] hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentChoice"
+                    checked={paymentChoice === 'razorpay'}
+                    onChange={() => setPaymentChoice('razorpay')}
+                    className="mt-1 accent-cafe-accent"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-cafe-dark text-sm">Pay Online via Razorpay</span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                        Cards / UPI / NetBanking
+                      </span>
+                    </div>
+                    <p className="text-text-secondary text-xs mt-1">
+                      Pay securely online. Upon completion, an instant verified invoice is generated and sent to WhatsApp.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Pay at Counter / WhatsApp Direct */}
+                <label 
+                  onClick={() => setPaymentChoice('whatsapp_counter')}
+                  className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                    paymentChoice === 'whatsapp_counter'
+                      ? 'border-cafe-accent bg-[#FDFBF7] shadow-sm'
+                      : 'border-[#EBE3D5] hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentChoice"
+                    checked={paymentChoice === 'whatsapp_counter'}
+                    onChange={() => setPaymentChoice('whatsapp_counter')}
+                    className="mt-1 accent-cafe-accent"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-cafe-dark text-sm">
+                        {orderType === 'Delivery' ? 'Cash on Delivery' : 'Pay at Counter / Table'}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        Direct Order
+                      </span>
+                    </div>
+                    <p className="text-text-secondary text-xs mt-1">
+                      No online payment required now. Place order directly and send order details instantly to the cafe owner on WhatsApp.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Submit CTA */}
+              <button
+                type="button"
+                onClick={handleProceed}
+                disabled={isProcessing}
+                className="w-full mt-6 py-4 px-6 bg-cafe-dark hover:bg-cafe-accent text-white font-bold text-sm sm:text-base rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Processing Order...
+                  </span>
+                ) : paymentChoice === 'razorpay' ? (
+                  <>
+                    <CreditCard size={18} />
+                    <span>Pay {formatPrice(finalTotal)} via Razorpay</span>
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare size={18} />
+                    <span>Place Order & Open WhatsApp Bill</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+          </div>
+
+          {/* RIGHT: Cart Summary & Coupon (5 cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            
+            {/* Order Items Review */}
+            <div className="bg-white p-6 rounded-2xl border border-[#EBE3D5] shadow-sm">
+              <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#EBE3D5]">
+                <h3 className="font-serif text-lg font-semibold text-cafe-dark">Order Items ({cartItems.length})</h3>
+                <span className="text-xs text-text-secondary">{currency} Prices</span>
+              </div>
+
+              <div className="divide-y divide-[#EBE3D5]/60 max-h-[320px] overflow-y-auto pr-1 no-scrollbar">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="py-3 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      {item.image && (
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0" 
+                        />
+                      )}
+                      <div className="truncate">
+                        <p className="font-semibold text-cafe-dark truncate">{item.name}</p>
+                        <p className="text-text-secondary text-xs">{formatPrice(item.price)} each</p>
+                      </div>
+                    </div>
+
+                    {/* Quantity controls */}
+                    <div className="flex items-center gap-2 border border-[#EBE3D5] rounded-lg p-1 bg-[#F8F5F0]">
+                      <button 
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="p-1 hover:text-cafe-accent text-cafe-dark"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="font-semibold text-xs w-4 text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="p-1 hover:text-cafe-accent text-cafe-dark"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
+
+                    <span className="font-bold text-cafe-dark text-xs sm:text-sm shrink-0">
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coupon Box */}
+              <div className="mt-4 pt-4 border-t border-[#EBE3D5]">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Promo code (e.g. WELCOME20)"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-grow px-4 py-2 border border-[#EBE3D5] rounded-lg text-sm focus:outline-none focus:border-cafe-accent bg-white uppercase"
+                    className="flex-1 px-3 py-2 border border-[#EBE3D5] rounded-xl text-xs uppercase focus:outline-none focus:border-cafe-accent bg-white"
                   />
-                  <button 
+                  <button
                     onClick={handleApplyCoupon}
-                    className="bg-cafe-dark text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-cafe-accent transition-colors"
+                    className="px-4 py-2 bg-cafe-accent hover:bg-[#A88358] text-white text-xs font-semibold rounded-xl transition-colors"
                   >
                     Apply
                   </button>
                 </div>
-                {couponError && <p className="text-red-500 text-xs mb-2 font-medium">{couponError}</p>}
                 {couponApplied && (
-                  <p className="text-green-600 text-xs flex items-center gap-1"><Check size={12} /> Coupon applied successfully!</p>
+                  <p className="text-emerald-600 text-xs mt-1.5 flex items-center gap-1">
+                    <Check size={14} /> Coupon applied successfully!
+                  </p>
                 )}
+                {couponError && <p className="text-red-500 text-xs mt-1.5">{couponError}</p>}
               </div>
-              
-              <div className="space-y-3 border-t border-[#EBE3D5] pt-6 mb-8 text-sm">
-                <div className="flex justify-between text-text-secondary">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+
+              {/* Breakdown */}
+              <div className="mt-4 pt-4 border-t border-[#EBE3D5] space-y-2 text-xs sm:text-sm text-text-secondary">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-green-600 font-medium">
-                    <span>Discount</span>
-                    <span>-₹{discount.toFixed(2)}</span>
+                {couponApplied && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>Discount:</span>
+                    <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-text-secondary">
-                  <span>Taxes & Fees</span>
-                  <span>₹{(subtotal * 0.05).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-serif text-xl font-bold text-cafe-dark pt-4 border-t border-[#EBE3D5]">
-                  <span>Total</span>
-                  <span>₹{(finalTotal + (subtotal * 0.05)).toFixed(2)}</span>
+                {orderType === 'Delivery' && (
+                  <div className="flex justify-between">
+                    <span>Delivery Charge:</span>
+                    <span>{formatPrice(deliveryFee)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-base sm:text-lg font-bold text-cafe-dark pt-3 border-t border-[#EBE3D5]">
+                  <span>Total Amount:</span>
+                  <span className="text-cafe-accent font-serif">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
-              
-              {step === 'cart' ? (
-                 <button 
-                   onClick={() => {
-                     setStep('booking');
-                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                   }}
-                   className="w-full bg-cafe-accent hover:bg-cafe-dark transition-colors text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                 >
-                   Proceed to Checkout
-                 </button>
-              ) : (
-                 <div className="flex flex-col gap-3">
-                   <button 
-                     onClick={handlePlaceOrder}
-                     className="w-full bg-cafe-accent hover:bg-cafe-dark transition-colors text-white py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                   >
-                     Confirm Pre-booking
-                   </button>
-                   <button 
-                     onClick={() => {
-                       setStep('cart');
-                       window.scrollTo({ top: 0, behavior: 'smooth' });
-                     }}
-                     className="w-full bg-transparent border border-cafe-dark text-cafe-dark py-4 rounded-xl font-semibold text-lg hover:bg-cafe-dark hover:text-white transition-colors flex items-center justify-center gap-2"
-                   >
-                     <ArrowLeft size={20} /> Back to Cart
-                   </button>
-                 </div>
-              )}
+
             </div>
+
+            {/* Direct Owner Notification Note */}
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-3">
+              <MessageSquare size={18} className="text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold block mb-0.5">Instant WhatsApp Order Dispatch</span>
+                <p className="text-[11px] leading-relaxed">
+                  As soon as you place your order, your itemized invoice is generated with a 1-tap WhatsApp button to send details straight to our owner at <strong>+91 {settings?.whatsappNumber || '9458082654'}</strong>.
+                </p>
+              </div>
+            </div>
+
           </div>
-          
+
         </div>
       </div>
-      
-      {/* Success Modal Overlay */}
-      {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-          <div className="relative bg-white rounded-2xl p-8 max-w-sm w-full mx-auto shadow-2xl text-center animate-fade-in-up">
-            
-            {/* Animated PhonePe style checkmark */}
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 52 52" 
-              className="w-16 h-16 mx-auto mb-6 block rounded-full"
-              style={{
-                strokeWidth: 4, 
-                stroke: '#fff', 
-                strokeMiterlimit: 10, 
-                boxShadow: 'inset 0px 0px 0px #16a34a',
-                animation: 'checkmark-fill .4s ease-in-out .4s forwards, checkmark-scale .3s ease-in-out .9s both'
-              }}
-            >
-              <circle 
-                cx="26" cy="26" r="25" 
-                fill="none" 
-                style={{
-                  strokeDasharray: 166, 
-                  strokeDashoffset: 166, 
-                  strokeWidth: 4, 
-                  strokeMiterlimit: 10, 
-                  stroke: '#16a34a', 
-                  fill: 'none', 
-                  animation: 'checkmark-stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards'
-                }} 
-              />
-              <path 
-                fill="none" 
-                d="M14.1 27.2l7.1 7.2 16.7-16.8" 
-                style={{
-                  transformOrigin: '50% 50%', 
-                  strokeDasharray: 48, 
-                  strokeDashoffset: 48, 
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  animation: 'checkmark-stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards'
-                }} 
-              />
-            </svg>
 
-            <h2 className="font-serif text-2xl text-cafe-dark mb-2">Booking Confirmed!</h2>
-            <p className="text-sm text-text-secondary mb-6">
-              Your table is reserved for <span className="font-semibold text-cafe-dark">{bookingDate}</span> at <span className="font-semibold text-cafe-dark">{arrivalTime}</span>.
-            </p>
-            <div className="bg-[#F8F5F0] p-4 rounded-xl mb-6 text-sm text-left">
-              <div className="flex justify-between mb-2 border-b border-[#EBE3D5] pb-2">
-                <span className="text-text-secondary">Amount Paid</span>
-                <span className="font-semibold">₹{(finalTotal + (subtotal * 0.05)).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between pt-1">
-                <span className="text-text-secondary">Payment Mode</span>
-                <span className="font-semibold">{paymentMethod === 'upi' ? 'UPI' : 'Pay at Cafe'}</span>
-              </div>
-            </div>
-            <button 
-              onClick={() => {
-                clearCart();
-                navigate('/');
-              }}
-              className="w-full bg-cafe-dark text-white py-3 rounded-xl font-semibold hover:bg-cafe-accent transition-colors"
-            >
-              Back to Home
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Invoice Receipt Modal */}
+      <InvoiceModal
+        isOpen={isInvoiceOpen}
+        onClose={() => {
+          setIsInvoiceOpen(false);
+          navigate('/');
+        }}
+        orderData={currentOrderData}
+      />
     </>
   );
 };

@@ -2,9 +2,11 @@ import React from 'react';
 import { ShoppingBag, ChevronRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CartOverlay = () => {
   const { totalItems, subtotal } = useCart();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,7 +24,7 @@ const CartOverlay = () => {
           </div>
           <div>
             <p className="text-xs text-gray-300 font-medium">Total Amount</p>
-            <p className="font-sans text-xl font-bold tracking-wide">₹{subtotal}</p>
+            <p className="font-sans text-xl font-bold tracking-wide">{formatPrice(subtotal, true)}</p>
           </div>
         </div>
         

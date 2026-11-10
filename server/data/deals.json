@@ -1,0 +1,30 @@
+[
+  {
+    "id": "deal-1",
+    "title": "Morning Brew Combo",
+    "description": "Any Signature Cappuccino + Fresh Butter Croissant",
+    "originalPrice": 380,
+    "discountPrice": 299,
+    "badge": "Popular",
+    "isActive": true
+  },
+  {
+    "id": "deal-2",
+    "title": "Sweet Escape Dessert Duo",
+    "description": "Classic New York Cheesecake + Iced Caramel Latte",
+    "originalPrice": 458,
+    "discountPrice": 369,
+    "badge": "Chef Special",
+    "isActive": true
+  },
+  {
+    "id": "deal-3",
+    "title": "Weekend Brunch Feast",
+    "description": "Avocado Toast + Pesto Chicken Sandwich + 2 Iced Beverages",
+    "originalPrice": 880,
+    "discountPrice": 699,
+    "badge": "Weekend Special",
+    "isActive": true
+  }
+]
+

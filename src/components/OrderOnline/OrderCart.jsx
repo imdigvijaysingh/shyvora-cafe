@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { X, Info } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { useNavigate } from 'react-router-dom';
 
-const CartItem = ({ item, updateQuantity, removeFromCart }) => (
+const CartItem = ({ item, updateQuantity, removeFromCart, formatPrice }) => (
   <div className="flex gap-4 py-4 border-b border-[#EBE3D5] last:border-0 relative group">
     <button 
       onClick={() => removeFromCart(item.id)}
@@ -15,7 +16,7 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => (
     <div className="flex-1 pr-6">
       <div className="flex justify-between items-start mb-2">
          <h4 className="font-semibold text-cafe-dark text-sm">{item.name}</h4>
-         <span className="text-xs font-semibold text-cafe-dark">₹{item.price}</span>
+         <span className="text-xs font-semibold text-cafe-dark">{formatPrice(item.price)}</span>
       </div>
       <div className="flex items-center border border-[#EBE3D5] rounded-md w-fit bg-white">
          <button 
@@ -34,6 +35,7 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => (
 
 const OrderCart = () => {
   const { cartItems, updateQuantity, removeFromCart, clearCart, subtotal, totalItems } = useCart();
+  const { formatPrice, currency } = useCurrency();
   const [promoCode, setPromoCode] = useState('');
   const navigate = useNavigate();
 
@@ -46,7 +48,7 @@ const OrderCart = () => {
   };
 
   const showPromoInfo = () => {
-    alert("Available Codes:\n- WELCOME10 (10% off for new users)\n- CAFE20 (20% off on orders above ₹500)\n\nTerms and conditions apply. Coupon code or promo code will be only applicable if the add to the cart exceeds this particular amount of money.");
+    alert(`Available Codes:\n- WELCOME10 (10% off for new users)\n- CAFE20 (20% off on orders above ${formatPrice(500)})\n\nTerms and conditions apply. Coupon code or promo code will be only applicable if the add to the cart exceeds this particular amount of money.`);
   };
 
   const handleCheckout = () => {
@@ -66,7 +68,7 @@ const OrderCart = () => {
       <div className="bg-[#F8F5F0] rounded-2xl border border-[#EBE3D5] p-6 sticky top-24">
         
         <div className="flex justify-between items-end mb-6">
-           <h3 className="font-serif text-lg text-cafe-dark font-semibold tracking-wide uppercase">YOUR ORDER</h3>
+           <h3 className="font-serif text-lg text-cafe-dark font-semibold tracking-wide uppercase whitespace-nowrap">YOUR ORDER</h3>
            <button 
              onClick={clearCart}
              className="text-[10px] text-text-secondary hover:text-cafe-dark underline"
@@ -82,6 +84,7 @@ const OrderCart = () => {
                 item={item} 
                 updateQuantity={updateQuantity} 
                 removeFromCart={removeFromCart} 
+                formatPrice={formatPrice}
               />
             ))
           ) : (
@@ -118,22 +121,22 @@ const OrderCart = () => {
         <div className="space-y-3 border-t border-[#EBE3D5] pt-4 mb-4">
           <div className="flex justify-between text-xs text-text-secondary">
             <span>Subtotal</span>
-            <span>₹{subtotal}</span>
+            <span>{formatPrice(subtotal, true)}</span>
           </div>
           <div className="flex justify-between text-xs text-text-secondary">
             <span>Delivery Fee</span>
-            <span>₹{deliveryFee}</span>
+            <span>{deliveryFee > 0 ? formatPrice(deliveryFee) : (currency === 'INR' ? '₹0' : '$0')}</span>
           </div>
           <div className="flex justify-between text-xs text-text-secondary">
             <span>Taxes & Charges</span>
-            <span>₹{taxes}</span>
+            <span>{formatPrice(taxes, true)}</span>
           </div>
         </div>
 
         {/* Total */}
         <div className="flex justify-between items-end border-t border-[#EBE3D5] pt-4 mb-6">
           <span className="font-semibold text-cafe-dark">Total <span className="text-xs font-normal text-text-secondary">({totalItems} items)</span></span>
-          <span className="font-semibold text-lg text-cafe-dark">₹{finalTotal}</span>
+          <span className="font-semibold text-lg text-cafe-dark">{formatPrice(finalTotal, true)}</span>
         </div>
 
         {/* Checkout Button */}

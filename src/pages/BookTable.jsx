@@ -24,8 +24,8 @@ const BookTable = () => {
     <>
       <BookHero />
       
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-cafe-bg relative">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 lg:gap-24">
+      <section className="py-8 sm:py-12 md:py-16 px-4 md:px-8 bg-cafe-bg relative">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-16">
           <ReservationForm />
           <WhyBookSidebar />
         </div>

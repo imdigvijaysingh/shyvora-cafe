@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useCurrency } from '../../context/CurrencyContext';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 
 // Green leaf icon for veg indicator
@@ -11,6 +12,7 @@ const VegIcon = () => (
 
 const MenuItemRow = ({ name, description, price, isVeg }) => {
   const { addToCart, updateQuantity, cartItems } = useCart();
+  const { formatPrice } = useCurrency();
   const cartItem = cartItems.find(item => item.id === name);
   const quantity = cartItem ? cartItem.quantity : 0;
 
@@ -28,7 +30,7 @@ const MenuItemRow = ({ name, description, price, isVeg }) => {
         <p className="text-xs text-text-secondary mt-1">{description}</p>
       </div>
       <div className="flex flex-col items-end gap-2">
-        <div className="font-semibold text-cafe-dark whitespace-nowrap">₹{price}</div>
+        <div className="font-semibold text-cafe-dark whitespace-nowrap">{formatPrice(price)}</div>
         {quantity > 0 ? (
           <div className="flex items-center gap-1 bg-[#F8F5F0] rounded-md border border-[#EBE3D5] p-0.5">
             <button onClick={() => updateQuantity(name, quantity - 1)} className="p-1 hover:text-cafe-accent transition-colors"><Minus size={14} /></button>
@@ -68,10 +70,10 @@ const SignatureFavourites = ({ items }) => (
 
 const MenuCategoryList = ({ title, items, image, reverse, signatureItems }) => {
   return (
-    <section className="py-12 px-4 md:px-8 bg-cafe-bg border-b border-gray-100 last:border-0">
+    <section className="py-6 sm:py-8 md:py-10 px-4 md:px-8 bg-cafe-bg border-b border-gray-100 last:border-0">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-           <h2 className="font-serif text-2xl text-cafe-dark uppercase tracking-widest">{title}</h2>
+           <h2 className="font-serif text-[clamp(1.2rem,5vw,1.5rem)] text-cafe-dark uppercase tracking-widest whitespace-nowrap">{title}</h2>
         </div>
         
         <div className="text-cafe-accent mb-8 flex items-center">

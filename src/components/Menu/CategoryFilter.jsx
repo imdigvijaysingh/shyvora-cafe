@@ -13,7 +13,7 @@ const CategoryFilter = ({ activeCategory = 'All', onCategoryChange }) => {
   ];
 
   return (
-    <div className="bg-cafe-bg py-8 px-4 border-b border-gray-200">
+    <div className="bg-cafe-bg py-3 sm:py-4 md:py-6 px-4 border-b border-gray-200">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-start md:justify-center gap-4 overflow-x-auto no-scrollbar pb-2">
           {categories.map((cat, idx) => {

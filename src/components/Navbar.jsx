@@ -1,20 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, User, ShoppingBag, X, LogOut, Settings, Calendar, Heart, CreditCard, MapPin, Package, ShoppingCart, Menu } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import TopLoader from './TopLoader';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
   const { totalItems } = useCart();
+  const { currency, toggleCurrency, changeCurrency, exchangeRate, isLiveRate } = useCurrency();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const profileRef = useRef(null);
+  const profileTimeoutRef = useRef(null);
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [path]);
+
+  // Click outside to close profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    };
+  }, []);
+
+  const handleProfileMouseEnter = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    setIsProfileOpen(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    profileTimeoutRef.current = setTimeout(() => {
+      setIsProfileOpen(false);
+    }, 200);
+  };
 
   const isActive = (route) => {
     return path === route 
@@ -39,11 +75,12 @@ const Navbar = () => {
           <button 
             className="lg:hidden text-cafe-dark hover:text-cafe-accent transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open navigation menu"
           >
             <Menu size={24} />
           </button>
           <Link to="/" className="flex flex-col items-center flex-shrink-0">
-            <span className="font-serif text-2xl font-semibold tracking-wide">Brew & Bloom</span>
+            <span className="font-serif text-2xl font-semibold tracking-wide whitespace-nowrap">Brew & Bloom</span>
             <span className="text-[10px] tracking-widest uppercase text-text-secondary -mt-1">Cafe</span>
           </Link>
         </div>
@@ -60,8 +97,23 @@ const Navbar = () => {
         </div>
 
         {/* Icons & CTA */}
-        <div className="flex items-center gap-4 md:gap-6 flex-shrink-0 relative">
+        <div className="flex items-center gap-3 md:gap-5 flex-shrink-0 relative">
           
+          {/* Currency Toggle Button - Desktop/Tablet (Hidden on mobile to preserve navbar space; accessible via left drawer menu) */}
+          <div className="hidden md:flex items-center relative">
+            <button 
+              onClick={toggleCurrency}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-[#EBE3D5] hover:border-cafe-accent bg-white/90 hover:bg-white text-xs font-semibold text-cafe-dark transition-all shadow-sm group cursor-pointer"
+              title={`Switch Currency (Currently ${currency === 'INR' ? 'Indian Rupee' : 'US Dollar'}) • Live Rate: 1 USD ≈ ₹${exchangeRate.toFixed(1)}`}
+            >
+              <span className={`w-2 h-2 rounded-full ${isLiveRate ? 'bg-emerald-500 animate-pulse' : 'bg-cafe-accent'}`}></span>
+              <span className="font-bold tracking-wide">{currency === 'INR' ? '₹ INR' : '$ USD'}</span>
+              <span className="text-[10px] text-text-secondary group-hover:text-cafe-accent font-medium transition-colors">
+                {currency === 'INR' ? '⇄ $' : '⇄ ₹'}
+              </span>
+            </button>
+          </div>
+
           {/* Search Bar */}
           <div className="flex items-center relative">
             {isSearchOpen ? (
@@ -89,48 +141,103 @@ const Navbar = () => {
           </div>
 
           {/* Profile Dropdown */}
-          <div className="relative" onMouseLeave={() => setIsProfileOpen(false)}>
+          <div 
+            ref={profileRef}
+            className="relative" 
+            onMouseEnter={handleProfileMouseEnter}
+            onMouseLeave={handleProfileMouseLeave}
+          >
             <button 
               onClick={() => {
-                setIsProfileOpen(!isProfileOpen);
-                if (window.innerWidth < 1024) navigate('/profile/settings');
+                if (window.innerWidth < 1024) {
+                  navigate('/profile/settings');
+                } else {
+                  setIsProfileOpen((prev) => !prev);
+                }
               }} 
-              className="text-text-primary hover:text-cafe-accent transition-colors flex items-center gap-1 border border-[#EBE3D5] rounded-full p-2 hover:bg-white"
+              className={`text-text-primary hover:text-cafe-accent transition-colors flex items-center gap-1 border border-[#EBE3D5] rounded-full p-2 hover:bg-white ${isProfileOpen ? 'bg-white text-cafe-accent shadow-sm' : ''}`}
+              aria-label="User Account Menu"
+              aria-expanded={isProfileOpen}
             >
               <User size={20} strokeWidth={1.5} />
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="hidden lg:block"><path d="m6 9 6 6 6-6"/></svg>
+              <svg 
+                width="12" 
+                height="12" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={`hidden lg:block transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
             </button>
             
-            {/* Dropdown Menu (Desktop only, as mobile navigates directly) */}
-            <div className={`absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-[#EBE3D5] overflow-hidden transition-all origin-top-right hidden lg:block ${isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'} z-50`}>
-              <div className="p-4 border-b border-[#EBE3D5] bg-[#F8F5F0]">
-                <h4 className="font-semibold text-cafe-dark text-sm">Hi, Digvijay</h4>
-                <p className="text-xs text-text-secondary">digvijay@example.com</p>
-              </div>
-              <div className="py-2">
-                <Link to="/profile/orders" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <Package size={16} /> My Orders
-                </Link>
-                <Link to="/profile/reservations" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <Calendar size={16} /> My Reservations
-                </Link>
-                <Link to="/profile/addresses" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <MapPin size={16} /> Saved Addresses
-                </Link>
-                <Link to="/profile/payments" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <CreditCard size={16} /> Payment Methods
-                </Link>
-                <Link to="/profile/wishlist" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <Heart size={16} /> Wishlist
-                </Link>
-              </div>
-              <div className="py-2 border-t border-[#EBE3D5]">
-                <Link to="/profile/settings" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent">
-                  <Settings size={16} /> Account Settings
-                </Link>
-                <button onClick={() => { setIsLoginModalOpen(true); setIsProfileOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-[#F8F5F0]">
-                  <LogOut size={16} /> Log Out
-                </button>
+            {/* Dropdown Menu (pt-2 seamlessly connects trigger with dropdown, eliminating the cursor exit gap) */}
+            <div 
+              className={`absolute top-full right-0 pt-2 w-64 hidden lg:block transition-all duration-200 origin-top-right z-50 before:absolute before:inset-x-0 before:top-0 before:h-2 before:content-[''] ${
+                isProfileOpen ? 'opacity-100 scale-100 visible pointer-events-auto' : 'opacity-0 scale-95 invisible pointer-events-none'
+              }`}
+            >
+              <div className="bg-white rounded-xl shadow-xl border border-[#EBE3D5] overflow-hidden">
+                <div className="p-4 border-b border-[#EBE3D5] bg-[#F8F5F0]">
+                  <h4 className="font-semibold text-cafe-dark text-sm">Hi, Digvijay</h4>
+                  <p className="text-xs text-text-secondary">digvijay@example.com</p>
+                </div>
+                <div className="py-2">
+                  <Link 
+                    to="/profile/orders" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <Package size={16} /> My Orders
+                  </Link>
+                  <Link 
+                    to="/profile/reservations" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <Calendar size={16} /> My Reservations
+                  </Link>
+                  <Link 
+                    to="/profile/addresses" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <MapPin size={16} /> Saved Addresses
+                  </Link>
+                  <Link 
+                    to="/profile/payments" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <CreditCard size={16} /> Payment Methods
+                  </Link>
+                  <Link 
+                    to="/profile/wishlist" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <Heart size={16} /> Wishlist
+                  </Link>
+                </div>
+                <div className="py-2 border-t border-[#EBE3D5]">
+                  <Link 
+                    to="/profile/settings" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-[#F8F5F0] hover:text-cafe-accent transition-colors"
+                  >
+                    <Settings size={16} /> Account Settings
+                  </Link>
+                  <button 
+                    onClick={() => { setIsLoginModalOpen(true); setIsProfileOpen(false); }} 
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-[#F8F5F0] transition-colors"
+                  >
+                    <LogOut size={16} /> Log Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -200,7 +307,29 @@ const Navbar = () => {
               <Link to="/book#reservation-form" onClick={() => setIsMobileMenuOpen(false)} className={`py-4 border-b border-[#EBE3D5] text-sm font-semibold tracking-wide ${path === '/book' ? 'text-cafe-dark' : 'text-gray-500'}`}>BOOK A TABLE</Link>
               <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className={`py-4 border-b border-[#EBE3D5] text-sm font-semibold tracking-wide ${path === '/about' ? 'text-cafe-dark' : 'text-gray-500'}`}>ABOUT US</Link>
               <Link to="/gallery" onClick={() => setIsMobileMenuOpen(false)} className={`py-4 border-b border-[#EBE3D5] text-sm font-semibold tracking-wide ${path === '/gallery' ? 'text-cafe-dark' : 'text-gray-500'}`}>GALLERY</Link>
-              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className={`py-4 text-sm font-semibold tracking-wide ${path === '/contact' ? 'text-cafe-dark' : 'text-gray-500'}`}>CONTACT US</Link>
+              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className={`py-4 border-b border-[#EBE3D5] text-sm font-semibold tracking-wide ${path === '/contact' ? 'text-cafe-dark' : 'text-gray-500'}`}>CONTACT US</Link>
+              
+              {/* Mobile Currency Selection */}
+              <div className="py-4 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-cafe-dark uppercase tracking-wider block">Currency</span>
+                  <span className="text-[10px] text-text-secondary">Rate: 1 USD ≈ ₹{exchangeRate.toFixed(1)}</span>
+                </div>
+                <div className="flex bg-white p-1 rounded-full border border-[#EBE3D5]">
+                  <button
+                    onClick={() => changeCurrency('INR')}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${currency === 'INR' ? 'bg-cafe-dark text-white shadow-sm' : 'text-text-secondary hover:text-cafe-dark'}`}
+                  >
+                    ₹ INR
+                  </button>
+                  <button
+                    onClick={() => changeCurrency('USD')}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${currency === 'USD' ? 'bg-cafe-dark text-white shadow-sm' : 'text-text-secondary hover:text-cafe-dark'}`}
+                  >
+                    $ USD
+                  </button>
+                </div>
+              </div>
             </div>
             
             <div className="mt-auto p-6 bg-[#F8F5F0] border-t border-[#EBE3D5]">

@@ -1,0 +1,37 @@
+{
+  "cafeName": "Brew & Bloom Cafe",
+  "whatsappNumber": "9458082654",
+  "whatsappCountryCode": "91",
+  "currency": "USD",
+  "exchangeRate": 87,
+  "freeDeliveryThresholdUSD": 5.5,
+  "freeDeliveryThresholdINR": 450,
+  "admin": {
+    "username": "admin",
+    "passwordHash": "$2b$10$bAsGrOG1zOeeDNkQCEgd3etwWoX76xTGnQoCQgfreg/LwTgFPMt.a"
+  },
+  "seasonalTheme": {
+    "enabled": true,
+    "theme": "christmas",
+    "title": "Merry Christmas & Season's Greetings!",
+    "discountPercentage": "10%",
+    "discountCode": "MERRY10",
+    "discountText": "Holiday Special: Get 10% off on all specialty coffees & dessert combos with code MERRY10",
+    "santaSpeech": "🎅 Ho Ho Ho! 10% Off Today!",
+    "santaSize": "large",
+    "showFloatingSanta": true,
+    "showSnowflakes": true,
+    "bannerColor": "#991b1b"
+  },
+  "hero": {
+    "videoUrl": "/src/assets/videos/home_hero.webm",
+    "posterUrl": "/hero_poster.webp",
+    "tagline": "Good Coffee, Good Mood",
+    "titleLine1": "Savor Moments,",
+    "titleLine2": "Sip Happiness"
+  },
+  "razorpay": {
+    "keyId": "rzp_test_placeholder",
+    "keySecret": "rzp_secret_placeholder"
+  }
+}

@@ -5,11 +5,11 @@ import MenuCategoryList from '../components/Menu/MenuCategoryList';
 import MenuCta from '../components/Menu/MenuCta';
 
 // Import images
-import coffeeImg from '../assets/images/menu_cappuccino_1784782504483.png';
-import breakfastImg from '../assets/images/menu_toast_1784782514646.png';
-import sandwichesImg from '../assets/images/cta_croissant_1784782576636.png'; // Using croissant for sandwich category
-import dessertsImg from '../assets/images/menu_cheesecake_1784782526474.png';
-import beveragesImg from '../assets/images/menu_iced_latte_1784782557336.png';
+import coffeeImg from '../assets/images/menu_cappuccino_1784782504483.webp';
+import breakfastImg from '../assets/images/menu_toast_1784782514646.webp';
+import sandwichesImg from '../assets/images/cta_croissant_1784782576636.webp'; // Using croissant for sandwich category
+import dessertsImg from '../assets/images/menu_cheesecake_1784782526474.webp';
+import beveragesImg from '../assets/images/menu_iced_latte_1784782557336.webp';
 
 const Menu = () => {
   const menuData = {
