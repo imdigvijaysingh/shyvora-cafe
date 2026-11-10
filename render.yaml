@@ -3,7 +3,7 @@ services:
     name: brew-and-bloom-cafe
     env: node
     plan: free
-    buildCommand: npm install && npm run build && cd server && npm install
+    buildCommand: npm install && npm run build
     startCommand: node server/server.js
     envVars:
       - key: NODE_ENV
